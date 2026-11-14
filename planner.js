@@ -119,11 +119,11 @@ function planForWeek(start, state) {
   const tournament = state.tournament ? new Date(`${state.tournament}T12:00:00`) : null;
   const phase = phaseFor(start, tournament);
   const tournamentIndex = phase === 'event' ? dayDistance(start, tournament) : -1;
-  const team = teamBlocks(state);
+  const team = teamBlocks(state, start);
   const practice = week.practiceByClub?.[state.club] || (state.club === 'berkeley' ? week.practice : {}) || {};
   const previous = state.weeks[dateKey(addDays(start, -7))];
   const previousPractice = previous?.practiceByClub?.[state.club] || (state.club === 'berkeley' ? previous?.practice : {});
-  const previousSaturday = team.some(block => block.day === 5) ? previousPractice?.[5] : undefined;
+  const previousSaturday = teamBlocks(state, addDays(start, -7)).some(block => block.day === 5) ? previousPractice?.[5] : undefined;
   const plan = buildWeek(phase, week.course === 'high', practice, previousSaturday, tournamentIndex, team);
   const commitments = week.commitments ?? state.commitments;
   const wednesday = plan[2];
@@ -163,15 +163,33 @@ function planForWeek(start, state) {
       ? sessions[0].label : `${displayTime(sessions[0].start)}–${displayTime(sessions[0].end)}`;
     plan[day] = teamPractice(time, 'Log your overall effort for the day.');
   }
-  return { plan, practice, tournament, phase, tournamentIndex, team, commitments: commitments || [] };
+  return { plan, practice, tournament, phase, tournamentIndex, team, commitments: commitments || [], events: clubEvents(state, start) };
 }
 
 function render(focusDay = false) {
   const weekSettings = settings.weeks[dateKey(weekStart)] || {};
-  const { plan, practice, tournament, phase, tournamentIndex, team, commitments } = planForWeek(weekStart, settings);
-  byId('club-note').textContent = !team.length ? 'Enter your coach’s practice times to add team sessions.'
-    : team.some(block => block.approximate) ? 'Using your Tuesday and Thursday nights and Saturday morning. Add exact times if you have them.'
-    : `${team.length} coach-led practice blocks each week.`;
+  const { plan, practice, tournament, phase, tournamentIndex, team, commitments, events } = planForWeek(weekStart, settings);
+  const club = publishedClubs[settings.club];
+  const manual = settings.teams?.[settings.club];
+  byId('club-note').textContent = manual
+    ? `${team.length} coach-entered practice blocks this week.`
+    : settings.club === 'berkeley' ? 'Using your Tuesday and Thursday nights and Saturday morning.'
+    : team.length ? `${team.length} published practices this week. Check the club page for term changes.`
+    : club?.practices?.length ? 'No published practices apply to this week.'
+    : 'Enter your coach’s practice times to add team sessions.';
+  const sources = byId('club-sources');
+  sources.replaceChildren();
+  for (const [url, label] of [[club?.source, 'Club schedule'], [club?.practiceSource, 'Practice hours']]) {
+    if (!url || (label === 'Practice hours' && url === club.source)) continue;
+    const link = document.createElement('a');
+    link.href = url;
+    link.target = '_blank';
+    link.rel = 'noopener';
+    link.textContent = label;
+    sources.append(link);
+  }
+  const checked = [club?.practiceChecked, club?.eventsChecked].filter(Boolean).sort().at(-1);
+  byId('club-checked').textContent = checked ? `Source checked ${dateFormatter.format(new Date(`${checked}T12:00:00`))}` : '';
   const end = addDays(weekStart, 6);
   const weekLabel = weekStart.getMonth() === end.getMonth()
     ? `${dateFormatter.format(weekStart)}–${end.getDate()}`
@@ -198,6 +216,8 @@ function render(focusDay = false) {
     <button class="day ${day.type}" data-day="${index}" aria-pressed="${index === selectedDay}">
       <span class="day-top">${days[index]} · ${addDays(weekStart, index).getDate()}</span>
       <strong>${day.title}</strong>
+      ${events.some(event => event.start <= dateKey(addDays(weekStart, index)) && event.end >= dateKey(addDays(weekStart, index)))
+        ? '<span class="club-event-tag">Competition listed</span>' : ''}
       <span class="day-time">${day.time}${day.type === 'practice' && practiceLabels[practice[index]] ? ` · ${practiceLabels[practice[index]]}` : ''}</span>
     </button>`).join('');
   const day = plan[selectedDay];
@@ -227,6 +247,20 @@ function render(focusDay = false) {
       list.append(item);
     }
     agenda.append(title, list);
+  }
+  const selectedDate = dateKey(addDays(weekStart, selectedDay));
+  const listed = events.filter(event => event.start <= selectedDate && event.end >= selectedDate);
+  for (const event of listed) {
+    const row = document.createElement('p');
+    row.className = 'club-event-detail';
+    const link = document.createElement('a');
+    link.href = event.source;
+    link.target = '_blank';
+    link.rel = 'noopener';
+    link.textContent = event.title;
+    row.append('Published competition · ', link);
+    if (event.location) row.append(` · ${event.location}`);
+    agenda.append(row);
   }
   byId('practice-log').hidden = day.type !== 'practice';
   byId('practice-load').value = practice[selectedDay] || '';

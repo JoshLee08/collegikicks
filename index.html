@@ -42,8 +42,12 @@
         <option value="ucla">UCLA Taekwondo</option>
       </select>
       <p id="club-note"></p>
-      <details><summary>Set recurring team practice times</summary>
-        <p>Enter the days and times your coach provides. These blocks stay fixed.</p>
+      <p id="club-sources"></p>
+      <p id="club-checked"></p>
+      <button type="button" id="refresh-clubs">Reload club calendar</button>
+      <p id="club-refresh-status" role="status"></p>
+      <details><summary>Override team practice times</summary>
+        <p>Enter the days and times your coach provides. These override published hours. Save an empty box to restore club defaults.</p>
         <textarea id="team-times" aria-label="Team practice times" rows="3" placeholder="Tue 19:00–21:00&#10;Thu 19:00–21:00&#10;Sat 09:00–11:00"></textarea>
         <button type="button" id="save-team">Save practice times</button>
         <p id="team-status" role="status"></p>
@@ -71,7 +75,7 @@
 </section>
 <section class="schedule" aria-labelledby="week-title">
   <div class="week-heading"><div><p class="eyebrow">WEEKLY SCHEDULE</p><h2 id="week-title"></h2></div><div class="week-nav"><button id="previous" aria-label="Previous week">←</button><button id="today">This week</button><button id="next" aria-label="Next week">→</button></div></div>
-  <p class="week-note">Select a day for its workouts and commitments. Log how hard team practice felt to adjust solo training.</p>
+  <p class="week-note">Select a day for workouts, commitments, and published competitions. Set your own tournament date if you plan to compete.</p>
   <div class="summary"><span><i class="practice"></i><strong id="practice-count"></strong></span><span><i class="extra"></i><strong id="minutes"></strong> extra training</span><span><i class="rest"></i><strong id="rest-days"></strong> rest days</span></div>
   <div id="week" class="week" aria-label="Choose a day to see workout details"></div>
   <article class="details" aria-labelledby="detail-title">

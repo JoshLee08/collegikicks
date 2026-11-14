@@ -76,7 +76,7 @@ function proposeSchedule(changes, current) {
       continue;
     }
     const week = next.weeks[key] ??= {};
-    if (operation === 'log_practice' && teamBlocks(next).some(block => block.day === index)) {
+    if (operation === 'log_practice' && teamBlocks(next, start).some(block => block.day === index)) {
       const logs = week.practiceByClub ??= {};
       (logs[next.club] ??= next.club === 'berkeley' ? { ...week.practice } : {})[index] = value;
       if (index === 5) touched.add(dateKey(addDays(start, 7)));
@@ -145,7 +145,7 @@ async function interpretNote(message, start) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
     body: JSON.stringify({
-      message, week_start: dateKey(start), practice_days: [...new Set(teamBlocks(settings).map(block => block.day))],
+      message, week_start: dateKey(start), practice_days: [...new Set(teamBlocks(settings, start).map(block => block.day))],
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
     }),
     signal: AbortSignal.timeout(12000)

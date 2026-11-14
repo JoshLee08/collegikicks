@@ -13,10 +13,10 @@ function refreshScheduleEditor() {
 }
 
 byId('club').value = settings.club;
-byId('team-times').value = scheduleLines(teamBlocks(settings).filter(block => !block.approximate));
+byId('team-times').value = scheduleLines(settings.teams[settings.club] || []);
 byId('club').addEventListener('change', event => {
   settings.club = event.target.value;
-  byId('team-times').value = scheduleLines(teamBlocks(settings).filter(block => !block.approximate));
+  byId('team-times').value = scheduleLines(settings.teams[settings.club] || []);
   byId('team-status').textContent = '';
   saveSettings();
   render();
@@ -206,3 +206,23 @@ for (const id of ['previous', 'next', 'today']) {
   });
 }
 refreshScheduleEditor();
+
+async function loadClubCalendar() {
+  const status = byId('club-refresh-status');
+  const button = byId('refresh-clubs');
+  button.disabled = true;
+  try {
+    const response = await fetch('club-calendar.json', { cache: 'no-cache' });
+    if (!response.ok) throw new Error('Calendar feed unavailable');
+    publishedClubs = (await response.json()).clubs;
+    render();
+    status.textContent = 'Published club calendar loaded.';
+  } catch {
+    status.textContent = 'Could not load published club schedules. Coach-entered schedules are available.';
+  } finally {
+    button.disabled = false;
+  }
+}
+
+byId('refresh-clubs').addEventListener('click', loadClubCalendar);
+loadClubCalendar();

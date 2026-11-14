@@ -6,7 +6,8 @@ const root = path.resolve(__dirname, '..');
 // Exercise the production scheduling and proposal functions without a browser.
 const source = fs.readFileSync(path.join(root, 'schedule.js'), 'utf8') + fs.readFileSync(path.join(root, 'planner.js'), 'utf8').split("byId('course').addEventListener")[0]
   + fs.readFileSync(path.join(root, 'chat.js'), 'utf8').split("const chatMessage =")[0];
-const context = vm.createContext({ Intl, Date, structuredClone, document: {}, localStorage: { getItem: () => null }, assert });
+const calendarFeed = JSON.parse(fs.readFileSync(path.join(root, 'club-calendar.json'), 'utf8'));
+const context = vm.createContext({ calendarFeed, Intl, Date, structuredClone, document: {}, localStorage: { getItem: () => null }, assert });
 vm.runInContext(source + `
 const start = parsePlanDate('2026-11-09');
 const initial = { club: 'berkeley', tournament: '', weeks: { '2026-11-09': { practice: { 1: 'moderate' } } } };
@@ -51,5 +52,14 @@ weekOverride.weeks['2026-11-09'].commitments = [{day:2,start:0,end:1440}];
 assert.equal(planForWeek(start, weekOverride).plan[2].type, 'rest');
 assert.equal(planForWeek(start, weekOverride).plan[3].title, 'Easy bike');
 assert.equal(planForWeek(start, {...initial, club:'usc'}).plan.filter(day => day.type === 'practice').length, 0);
+publishedClubs = calendarFeed.clubs;
+assert.deepEqual(JSON.stringify(planForWeek(start, {...initial, club:'usc'}).team.map(block => block.day)), '[0,2,4]');
+const thanksgiving = parsePlanDate('2026-11-23');
+assert.deepEqual(JSON.stringify(planForWeek(thanksgiving, {...initial, club:'uci'}).team.map(block => block.day)), '[1]');
+assert.equal(planForWeek(parsePlanDate('2026-12-07'), {...initial, club:'uci'}).team.length, 0);
+assert.equal(planForWeek(start, {...initial, club:'menlo'}).events[0].title, 'UC Davis Fall Open');
+assert.equal(planForWeek(start, {...initial, club:'ucd'}).events[0].start, '2026-11-15');
+assert.equal(planForWeek(start, {...initial, club:'menlo'}).tournament, null);
+assert.equal(planForWeek(start, {...initial, club:'usc', teams:{usc:[{day:3,start:600,end:720}]}}).team[0].day, 3);
 `, context);
 console.log('Scheduling, clarification, cross-week preview, and failed-proposal isolation checks passed.');

@@ -1,0 +1,217 @@
+{
+  "clubs": {
+    "fresno": {
+      "source": "https://engage.fresnostate.edu/organization/fresno-state-taekwondo"
+    },
+    "menlo": {
+      "source": "https://menloathletics.com/sports/taekwondo/schedule",
+      "events": [
+        {
+          "title": "WT Presidents Cup",
+          "start": "2026-08-25",
+          "end": "2026-08-25",
+          "location": "Lima, Peru"
+        },
+        {
+          "title": "US Taekwondo Season Final",
+          "start": "2026-09-11",
+          "end": "2026-09-13",
+          "location": "Little Rock, AR"
+        },
+        {
+          "title": "Chuncheon 2026 World Championships",
+          "start": "2026-09-16",
+          "end": "2026-09-20",
+          "location": "Muju, South Korea"
+        },
+        {
+          "title": "Bay Area Open",
+          "start": "2026-09-19",
+          "end": "2026-09-19",
+          "location": "San Jose, CA"
+        },
+        {
+          "title": "Pan American Club Championships",
+          "start": "2026-10-22",
+          "end": "2026-10-25",
+          "location": "Daytona Beach, FL"
+        },
+        {
+          "title": "Berkeley Fall Open",
+          "start": "2026-11-07",
+          "end": "2026-11-07",
+          "location": "Berkeley, CA"
+        },
+        {
+          "title": "UC Davis Fall Open",
+          "start": "2026-11-15",
+          "end": "2026-11-15",
+          "location": "Davis, CA"
+        },
+        {
+          "title": "US National Taekwondo Team Trials",
+          "start": "2027-01-14",
+          "end": "2027-01-17",
+          "location": "Memphis, TN"
+        },
+        {
+          "title": "US Open Championships",
+          "start": "2027-03-18",
+          "end": "2027-03-21",
+          "location": "Las Vegas, NV"
+        },
+        {
+          "title": "American Open West",
+          "start": "2027-06-18",
+          "end": "2027-06-20",
+          "location": "Tucson, AZ"
+        },
+        {
+          "title": "USA Taekwondo Nationals",
+          "start": "2027-07-07",
+          "end": "2027-07-11",
+          "location": "Fort Worth, TX"
+        },
+        {
+          "title": "USA Taekwondo Season Final & Festival",
+          "start": "2027-09-03",
+          "end": "2027-09-06",
+          "location": "Spokane, WA"
+        }
+      ],
+      "eventsChecked": "2026-11-14"
+    },
+    "usc": {
+      "source": "https://sites.google.com/usc.edu/usctkd/home?pli=1&authuser=0",
+      "practices": [
+        {
+          "day": 0,
+          "start": 1200,
+          "end": 1320,
+          "label": ""
+        },
+        {
+          "day": 2,
+          "start": 1200,
+          "end": 1320,
+          "label": ""
+        },
+        {
+          "day": 4,
+          "start": 1200,
+          "end": 1320,
+          "label": ""
+        }
+      ],
+      "practiceSource": "https://sites.google.com/usc.edu/usctkd/home?pli=1&authuser=0",
+      "practiceChecked": "2026-11-14"
+    },
+    "ucsd": {
+      "source": "https://ucsdtkd3.wixsite.com/ucsdtkd/blank-page",
+      "practices": [
+        {
+          "day": 0,
+          "start": 1260,
+          "end": 1380,
+          "label": ""
+        },
+        {
+          "day": 2,
+          "start": 1230,
+          "end": 1350,
+          "label": ""
+        },
+        {
+          "day": 3,
+          "start": 1260,
+          "end": 1380,
+          "label": ""
+        },
+        {
+          "day": 4,
+          "start": 1140,
+          "end": 1260,
+          "label": ""
+        }
+      ],
+      "practiceSource": "https://ucsdtkd3.wixsite.com/ucsdtkd/blank-page",
+      "practiceChecked": "2026-11-14"
+    },
+    "ucla": {
+      "source": "https://uclaclubsports.com/sports/taekwondo/schedule",
+      "practices": [
+        {
+          "day": 0,
+          "start": 1230,
+          "end": 1350,
+          "label": ""
+        },
+        {
+          "day": 2,
+          "start": 1230,
+          "end": 1350,
+          "label": ""
+        },
+        {
+          "day": 4,
+          "start": 1140,
+          "end": 1260,
+          "label": ""
+        }
+      ],
+      "practiceSource": "https://uclaclubsports.com/sports/2015/1/5/TAEKWONDO_0105151140.aspx",
+      "practiceChecked": "2026-11-14"
+    },
+    "ucd": {
+      "source": "https://sites.google.com/view/ucdavistaekwondo/home",
+      "practices": [
+        {
+          "day": 1,
+          "start": 1200,
+          "end": 1320,
+          "label": ""
+        },
+        {
+          "day": 3,
+          "start": 1200,
+          "end": 1320,
+          "label": ""
+        },
+        {
+          "day": 5,
+          "start": 600,
+          "end": 720,
+          "label": ""
+        }
+      ],
+      "practiceSource": "https://sites.google.com/view/ucdavistaekwondo/membership",
+      "practiceChecked": "2026-11-14"
+    },
+    "uci": {
+      "source": "https://campusrec.uci.edu/club/taekwondo.html",
+      "practices": [
+        {
+          "day": 1,
+          "start": 1200,
+          "end": 1320,
+          "label": ""
+        },
+        {
+          "day": 3,
+          "start": 1200,
+          "end": 1320,
+          "label": ""
+        }
+      ],
+      "practiceSource": "https://campusrec.uci.edu/club/taekwondo.html",
+      "validFrom": "2026-09-28",
+      "validTo": "2026-12-04",
+      "cancellations": [
+        "2026-11-11",
+        "2026-11-26",
+        "2026-11-27"
+      ],
+      "practiceChecked": "2026-11-14"
+    }
+  }
+}

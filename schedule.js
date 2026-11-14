@@ -10,8 +10,32 @@ const berkeleyPractices = [
   { day: 5, start: 0, end: 12 * 60, label: 'Saturday morning', approximate: true }
 ];
 
-function teamBlocks(state) {
-  return state.teams?.[state.club] ?? (state.club === 'berkeley' ? berkeleyPractices : []);
+let publishedClubs = {};
+
+function teamBlocks(state, week) {
+  const manual = state.teams?.[state.club];
+  if (manual) return manual;
+  if (state.club === 'berkeley') return berkeleyPractices;
+  const club = publishedClubs[state.club];
+  if (!week) return club?.practices || [];
+  return (club?.practices || []).filter(block => {
+    const date = dateKey(addDays(week, block.day));
+    return (!club.validFrom || date >= club.validFrom) &&
+      (!club.validTo || date <= club.validTo) && !club.cancellations?.includes(date);
+  });
+}
+
+function clubEvents(state, week) {
+  const first = dateKey(week);
+  const last = dateKey(addDays(week, 6));
+  const club = publishedClubs[state.club];
+  const listings = (club?.events || []).map(event => ({ ...event, source: club.source }));
+  if (state.club === 'ucd') {
+    const menlo = publishedClubs.menlo;
+    const davisOpen = menlo?.events?.filter(event => /^UC Davis Fall Open$/i.test(event.title)) || [];
+    listings.push(...davisOpen.map(event => ({ ...event, source: menlo.source })));
+  }
+  return listings.filter(event => event.start <= last && event.end >= first);
 }
 
 function clockMinutes(value, inheritedPeriod = '', allowEndOfDay = false) {

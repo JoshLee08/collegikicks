@@ -2,13 +2,27 @@
 
 **[Open the live collegiate planner on GitHub Pages](https://joshlee08.github.io/kyorugi-weekly-planner/)**
 
-Choose your Taekwondo club and enter its recurring coach-led practice times. Berkeley starts with Tuesday and Thursday evenings and Saturday morning. The other clubs use the times you enter.
+Choose your Taekwondo club to load its published practices and competitions when available. Berkeley starts with the coach-led schedule supplied for this planner. Override practice times with your coach’s current schedule. Published competitions appear on the weekly calendar. Set your personal tournament date separately to adjust your training.
 
 Import a text-based PDF, ICS calendar, CSV, or TXT file. Select a week for a dated import or use Every week for a recurring class schedule. Review and edit the extracted blocks before applying them. CSV columns are `day,start,end,label`, with labels optional and weekdays or ISO dates accepted. One text row looks like `Wed 14:00–16:00 Chemistry`. Scanned PDFs and layouts with no recognizable rows can be entered manually using the review box.
 
 The planner suggests workouts between 8 AM and 9 PM, with 15 minutes around commitments. It can move Monday strength to Tuesday and midweek conditioning to Thursday or Friday when appropriate. Team practices stay fixed. Files are processed locally. Confirmed time blocks, course load, tournament dates, and practice logs are saved in the browser.
 
 The frontend uses HTML, CSS, and JavaScript, published from the root of `main` on GitHub Pages.
+
+## Refresh school schedules and competitions
+
+The website loads `club-calendar.json` from GitHub Pages when it opens. **Reload club calendar** loads the latest published copy. The browser uses that feed alongside private settings and files stored locally.
+
+1. From the repository root, run `python3 tools/refresh_clubs.py`. The Python script fetches the public club pages, parses known layouts, validates dates, and updates the feed. An unavailable or unrecognized page leaves its last valid data in place.
+2. Run `git diff -- club-calendar.json` to see what changed. Visit a changed club and week on the planner to confirm its practice blocks or competitions.
+3. Commit and push the updated feed to `main`. GitHub Pages serves it from the same URL, and the website picks it up on reload.
+4. For unattended refreshes, run the same Python command once daily from a scheduled GitHub Actions job. Start with manual dispatch to verify the diff. Give the job permission to write repository contents and have it publish changes through a pull request or an authenticated push that triggers your Pages build. GitHub does not trigger a branch-based Pages build for commits pushed with the workflow’s default `GITHUB_TOKEN`.
+5. To add another public source, prefer an official ICS or JSON feed. Add a parser that produces weekday practice blocks or explicit competition date ranges and test it against a saved example before enabling it. Use `--fixtures /path/to/saved-pages --output /tmp/club-demo.json` to demonstrate a refresh without changing the live feed.
+
+The script reads USC, UCSD, UCLA, UC Davis, and UCI practice pages plus the Menlo and UCLA competition pages. UCI’s term bounds and cancellations are respected. Fresno State’s Engage listing is linked for reference. A dated Davis Fall Open listed by Menlo also appears for UC Davis, with Menlo’s schedule attached as the source. A school without a published practice time can use a coach-entered override.
+
+[GitHub Actions schedules](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule) · [GitHub Pages branch publishing](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site)
 
 ## Chatbot setup
 
