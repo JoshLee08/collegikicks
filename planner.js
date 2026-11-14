@@ -52,12 +52,20 @@ function trainingDay(title, type, time, content, minutes = [0, 0]) {
   return { title, type, time, content, minutes };
 }
 
-function buildWeek(phase, high, light, tournamentIndex) {
-  const shorterLift = high || phase === 'event';
+const practiceLabels = { light: 'Light', moderate: 'Moderate', hard: 'Hard' };
+
+function teamPractice(time, nextStep) {
+  return trainingDay('Berkeley team practice', 'practice', time,
+    `The coaches set the session. Log your overall effort afterward. ${nextStep}`);
+}
+
+function buildWeek(phase, high, practice, previousSaturday, tournamentIndex) {
+  const shorterLift = high || phase === 'event' || previousSaturday === 'hard';
   const strength = trainingDay(
     shorterLift ? 'Short strength' : 'Strength & power', 'extra',
     shorterLift ? '20–25 min' : '35–40 min',
     [
+      ...(previousSaturday === 'hard' ? ['Saturday was hard. Use the shorter lift if recovered, or take Monday off if your legs still feel heavy.'] : []),
       '<strong>Warm up for 7–8 minutes.</strong> Cycle easily, then do wall-push dead bugs and slow, controlled hip circles.',
       shorterLift
         ? '<strong>Lateral hops.</strong> 2 × 3 per side. Stick each landing and reset.'
@@ -66,38 +74,42 @@ function buildWeek(phase, high, light, tournamentIndex) {
       ...(shorterLift ? [] : ['<strong>Accessories.</strong> 2 × 5 Cossack squats per side and 2 × 20-second single-leg calf holds per side.'])
     ], shorterLift ? [20, 25] : [35, 40]
   );
-  const intervals = phase === 'build' && light;
-  const bike = high
-    ? trainingDay('Study & recover', 'rest', 'Open study block', 'Use this time for coursework or sleep. An easy walk is optional.')
-    : phase === 'event'
-      ? trainingDay('Easy bike', 'extra', '15–20 min', 'Ride at a conversational pace. Keep the session light ahead of competition.', [15, 20])
-      : trainingDay(intervals ? 'Bike sprints' : 'Aerobic bike', 'extra', '25–30 min',
-        intervals
-          ? '<strong>Warm up easily for 8–10 minutes.</strong> Ride 5 × (10 seconds hard + 80 seconds easy). Finish with 9–12 minutes of easy riding. If practice picks up in intensity, ride easy instead.'
-          : '<strong>Ride 5 min easy, then do 5 × (2 min brisk + 1 min easy).</strong> Finish with at least 5 min easy. Aim for about 6/10 effort on the brisk efforts. If Tuesday was especially hard, ride easy throughout.', [25, 30]);
+  const tuesday = practice[1];
+  const intervals = phase === 'build' && tuesday === 'light';
+  let bike;
+  if (high) {
+    bike = trainingDay('Study & recover', 'rest', 'Open study block', 'Use this time for coursework or sleep. An easy walk is optional.');
+  } else if (phase === 'event' || tuesday === 'hard' || !tuesday) {
+    const reason = phase === 'event' ? 'Keep the ride easy ahead of competition.'
+      : tuesday === 'hard' ? 'Tuesday was hard. Ride only if your legs feel recovered.'
+      : 'Tuesday’s effort is unlogged. Keep the ride easy until you know how practice went.';
+    bike = trainingDay('Easy bike', 'extra', '15–20 min optional',
+      `${reason} Keep a conversational pace or rest if you feel worn down.`, [15, 20]);
+  } else {
+    bike = trainingDay(intervals ? 'Bike sprints' : 'Aerobic bike', 'extra', '25–30 min',
+      intervals
+        ? '<strong>Warm up easily for 8–10 minutes.</strong> If you feel fresh after Tuesday, ride 5 × (10 seconds hard + 80 seconds easy), then cool down easily to 25–30 minutes. Ride easy if your legs feel heavy.'
+        : '<strong>Ride 5 min easy, then do 5 × (2 min brisk + 1 min easy).</strong> Cool down easily to 25–30 minutes. Aim for about 6/10 on the brisk efforts. Ride easy if you are still tired from practice.',
+      [25, 30]);
+  }
 
   const plan = [
     strength,
-    trainingDay('Distance & first attacks', 'practice', 'Night practice', 'Pick a sequence to repeat in drills or live sparring. Try a lead-leg cut kick, rear-leg roundhouse, then an angled exit.'),
+    teamPractice('Tuesday night', 'This updates Wednesday’s bike session.'),
     bike,
-    trainingDay('Reactions & score', 'practice', 'Night practice', 'Read your opponent’s first move and work on score management. If your coach runs situational rounds, try starting one point down with 30 seconds left.'),
-    trainingDay('Rest & coursework', 'rest', 'Open evening', 'Keep the evening open for coursework and recovery ahead of Saturday practice.'),
-    trainingDay('Live sparring', 'practice', 'Morning practice', 'When the coach schedules live sparring, use it as your hardest conditioning day. Try 3 × 2-minute rounds with 1 minute of rest, or use your event’s format. Use feints and small steps between explosive exchanges.'),
-    trainingDay('Rest & plan', 'rest', 'Open day', 'Check your deadlines and schedule next week’s extra sessions in gaps between classes.')
+    teamPractice('Thursday night', 'After a hard session, use Friday for recovery and coursework.'),
+    trainingDay('Rest & coursework', 'rest', 'Open evening',
+      practice[3] === 'hard' ? 'Thursday was hard. Prioritize sleep and recovery ahead of Saturday practice.' : 'Keep the evening open for coursework and recovery ahead of Saturday practice.'),
+    teamPractice('Saturday morning', 'A hard session shortens next Monday’s lift.'),
+    trainingDay('Rest & plan', 'rest', 'Open day', 'Check your Berkeley deadlines and schedule next week’s solo sessions in gaps between classes.')
   ];
 
   if (phase === 'event') {
-    for (const [index, day] of plan.entries()) {
-      if (day.type === 'practice') {
-        day.title = index < tournamentIndex ? 'Technical practice' : 'Return to practice';
-        day.content = index < tournamentIndex
-          ? 'Use controlled technical rounds and brief, crisp exchanges if your coach’s session allows. Save hard rounds for the tournament.'
-          : 'Check in with your coach and use an easy return to drills as recovery allows.';
-      }
+    const tournamentRest = trainingDay('Rest & recover', 'rest', 'Open day', 'Use the time for recovery and tournament logistics.');
+    for (const index of [0, 2]) {
+      if (index >= tournamentIndex - 1 && plan[index].type === 'extra') plan[index] = tournamentRest;
     }
-    if (tournamentIndex === 1) plan[0] = trainingDay('Rest before competition', 'rest', 'Open day', 'Keep your legs fresh for tomorrow.');
-    if (tournamentIndex === 3 && !high) plan[2] = trainingDay('Rest before competition', 'rest', 'Open day', 'Keep your legs fresh for tomorrow.');
-    plan[tournamentIndex] = trainingDay('Tournament', 'practice', 'Competition day', 'Use your usual competition warm-up and follow your event’s schedule. Between rounds, reset your breathing and focus on one cue from your coach.');
+    plan[tournamentIndex] = trainingDay('Tournament', 'event', 'Competition day', 'Use your usual warm-up and follow the event’s schedule. Between rounds, reset your breathing and focus on one cue from your coach. The tournament takes priority if it overlaps a team practice.');
   }
   return plan;
 }
@@ -108,7 +120,9 @@ function render(focusDay = false) {
   const tournament = settings.tournament ? new Date(`${settings.tournament}T12:00:00`) : null;
   const phase = phaseFor(weekStart, tournament);
   const tournamentIndex = phase === 'event' ? dayDistance(weekStart, tournament) : -1;
-  const plan = buildWeek(phase, weekSettings.course === 'high', weekSettings.rounds === 'light', tournamentIndex);
+  const practice = weekSettings.practice || {};
+  const previousSaturday = settings.weeks[dateKey(addDays(weekStart, -7))]?.practice?.[5];
+  const plan = buildWeek(phase, weekSettings.course === 'high', practice, previousSaturday, tournamentIndex);
   const end = addDays(weekStart, 6);
   const weekLabel = weekStart.getMonth() === end.getMonth()
     ? `${dateFormatter.format(weekStart)}–${end.getDate()}`
@@ -117,7 +131,6 @@ function render(focusDay = false) {
   byId('tournament').value = settings.tournament;
   byId('clear-date').hidden = !settings.tournament;
   byId('course').value = weekSettings.course || 'normal';
-  byId('rounds').value = weekSettings.rounds || 'regular';
   byId('phase').textContent = { base: 'Build your base', build: 'Competition build', event: 'Tournament week', after: 'Back to base' }[phase];
   const distance = tournament ? dayDistance(new Date(), tournament) : null;
   byId('countdown').textContent = distance === null ? 'Set a date to adapt the plan'
@@ -129,23 +142,31 @@ function render(focusDay = false) {
   const maximum = plan.reduce((sum, day) => sum + day.minutes[1], 0);
   byId('minutes').textContent = minimum === maximum ? `${minimum} min` : `${minimum}–${maximum} min`;
   byId('rest-days').textContent = plan.filter(day => day.type === 'rest').length;
-  const count = plan.filter((day, index) => day.type === 'practice' && index !== tournamentIndex).length;
+  const count = plan.filter(day => day.type === 'practice').length;
   byId('practice-count').textContent = tournamentIndex < 0 ? `${count} team practices` : `${count} practices + tournament`;
 
   byId('week').innerHTML = plan.map((day, index) => `
     <button class="day ${day.type}" data-day="${index}" aria-pressed="${index === selectedDay}">
       <span class="day-top">${days[index]} · ${addDays(weekStart, index).getDate()}</span>
       <strong>${day.title}</strong>
-      <span class="day-time">${day.time}</span>
+      <span class="day-time">${day.time}${day.type === 'practice' && practiceLabels[practice[index]] ? ` · ${practiceLabels[practice[index]]}` : ''}</span>
     </button>`).join('');
   const day = plan[selectedDay];
   const content = Array.isArray(day.content)
     ? `<ol>${day.content.map(item => `<li>${item}</li>`).join('')}</ol>`
     : `<p>${day.content}</p>`;
-  byId('details').innerHTML = `
-    <div><p class="eyebrow">${longFormatter.format(addDays(weekStart, selectedDay))}</p>
-    <h3>${day.title}</h3><p class="detail-meta">${day.time}</p></div>
-    <div class="detail-content">${content}</div>`;
+  byId('detail-date').textContent = longFormatter.format(addDays(weekStart, selectedDay));
+  byId('detail-title').textContent = day.title;
+  byId('detail-time').textContent = day.time;
+  byId('details').innerHTML = content;
+  byId('practice-log').hidden = day.type !== 'practice';
+  byId('practice-load').value = practice[selectedDay] || '';
+  const practiceUpdates = {
+    1: `Wednesday’s plan: ${plan[2].title}.`,
+    3: practice[3] === 'hard' ? 'Friday’s recovery note has been updated.' : 'Friday is open for coursework and recovery.',
+    5: practice[5] === 'hard' ? 'Next Monday’s lift will be shortened if it’s scheduled.' : 'Next Monday’s lift follows your coursework and tournament settings.'
+  };
+  byId('practice-feedback').textContent = practiceUpdates[selectedDay] || '';
   if (focusDay) byId('week').children[selectedDay].focus();
 }
 
@@ -163,7 +184,10 @@ function goToWeek(date) {
 }
 
 byId('course').addEventListener('change', event => setWeekOption('course', event.target.value));
-byId('rounds').addEventListener('change', event => setWeekOption('rounds', event.target.value));
+byId('practice-load').addEventListener('change', event => {
+  const practice = settings.weeks[dateKey(weekStart)]?.practice;
+  setWeekOption('practice', { ...practice, [selectedDay]: event.target.value });
+});
 byId('tournament').addEventListener('change', event => {
   settings.tournament = event.target.value;
   saveSettings();
