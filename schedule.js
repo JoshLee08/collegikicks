@@ -126,3 +126,15 @@ function findWorkoutSlot(blocks, duration) {
   }
   return candidate + duration <= latest ? candidate : null;
 }
+
+function validTournament(event) {
+  const validDate = value => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value) && Number.isFinite(new Date(value + 'T12:00:00').getTime()) && dateKey(new Date(value + 'T12:00:00')) === value;
+  return event && typeof event.id === 'string' && typeof event.title === 'string' && validDate(event.start) && validDate(event.end) && event.end >= event.start;
+}
+
+function selectedTournaments(state) {
+  const events = [...(state.tournaments || []).filter(validTournament)];
+  const legacy = { id: 'manual:' + state.tournament, title: 'Personal tournament', start: state.tournament, end: state.tournament, location: '' };
+  if (validTournament(legacy)) events.push(legacy);
+  return events.sort((a, b) => a.start.localeCompare(b.start));
+}

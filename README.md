@@ -2,11 +2,11 @@
 
 **[Open the live collegiate planner on GitHub Pages](https://joshlee08.github.io/kyorugi-weekly-planner/)**
 
-Choose your Taekwondo club to load its published practices and competitions when available. Berkeley starts with the coach-led schedule supplied for this planner. Override practice times with your coach’s current schedule. Published competitions appear on the weekly calendar. Set your personal tournament date separately to adjust your training.
+Choose your Taekwondo club to load its published practices and competitions when available. Berkeley starts with the coach-led schedule supplied for this planner. Override practice times with your coach’s current schedule. Published competitions appear on the weekly calendar. Use Tournaments in the top navigation to add multiple competitions to your schedule and adjust training.
 
 Import a text-based PDF, ICS calendar, CSV, or TXT file. Select a week for a dated import or use Every week for a recurring class schedule. Review and edit the extracted blocks before applying them. CSV columns are `day,start,end,label`, with labels optional and weekdays or ISO dates accepted. One text row looks like `Wed 14:00–16:00 Chemistry`. Scanned PDFs and layouts with no recognizable rows can be entered manually using the review box.
 
-The planner suggests workouts between 8 AM and 9 PM, with 15 minutes around commitments. It can move Monday strength to Tuesday and midweek conditioning to Thursday or Friday when appropriate. Team practices stay fixed. Files are processed locally. Confirmed time blocks, course load, tournament dates, and practice logs are saved in the browser.
+The planner suggests workouts between 8 AM and 9 PM, with 15 minutes around commitments. It can move Monday strength to Tuesday and midweek conditioning to Thursday or Friday when appropriate. Team practices stay fixed. Files are processed locally. Confirmed time blocks, course load, selected tournaments, and practice logs are saved in the browser.
 
 The frontend uses HTML, CSS, and JavaScript, published from the root of `main` on GitHub Pages.
 
@@ -41,3 +41,13 @@ The API accepts `message`, `week_start` (Monday, YYYY-MM-DD), `practice_days` (M
 This private prototype uses a shared access token and a process-local limit of ten authorized requests per minute. Keep one worker; for public or multi-instance hosting, replace these with individual authentication and a shared rate limiter. Settings remain in each browser. The access token is not saved by the planner.
 
 Run scheduling regression checks with `node tests/schedule.cjs`. These cover hard Tuesday, hard Saturday and next Monday, midterms, a Saturday tournament, a date-specific bike skip, ambiguous dates, and invalid proposals leaving settings unchanged. A live model request still needs configured server credentials.
+
+## Tournament discovery and selection
+
+The top navigation links to **Tournaments**, with searchable upcoming listings and a **My tournaments** list. **+ Add** saves planned attendance in the browser, reserves every date of a multi-day event, and adapts training to the next selected competition. Remove selections or jump to their week from the list. Overlapping tournaments are flagged. Existing personal dates remain visible as Personal tournament entries and can be removed. Adding an event does not register or pay the organizer.
+
+The Python API now exposes `GET /tournaments?today=YYYY-MM-DD` (the optional date is the browser's local date). It pulls the official Menlo and UCLA competition calendars through the existing validated parsers, deduplicates events by title and start date, and includes ongoing events. Source requests run concurrently with time and size limits. Responses are cached for 30 minutes; failed sources retain their last successful in-process data or use `club-calendar.json`, with a stale indicator and source-check dates. Only known source URLs are fetched. Restarting the API resets the in-memory cache.
+
+Install `backend/requirements.txt` and run the existing uvicorn command above. Tournament discovery needs no OpenAI credentials. Set `tournamentApiOrigin` at the top of `tournaments.js` to that API's HTTPS origin for GitHub Pages; an empty value uses the current origin. Allow any additional frontend origin explicitly in the backend CORS settings. GitHub Pages cannot execute Python: without a reachable API, the UI clearly labels its fallback to the published JSON snapshot. This change does not deploy the API or automatically refresh that snapshot. Use the existing refresh script to maintain it.
+
+Run `python3 -m unittest discover -s tests -p 'test_*.py'` for discovery fallback, caching, validation and deduplication tests, and `node tests/schedule.cjs` for scheduling tests including multiple tournaments and cross-week events.

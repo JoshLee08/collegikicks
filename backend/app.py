@@ -17,7 +17,7 @@ app = FastAPI(title="Kyorugi schedule assistant")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["https://joshlee08.github.io", "http://localhost:8000"],
-    allow_methods=["POST"],
+    allow_methods=["GET", "POST"],
     allow_headers=["Authorization", "Content-Type"],
 )
 
@@ -129,3 +129,9 @@ def suggest(note: Note, authorization: str = Header(default="")) -> Proposal:
         return validate_proposal(response.output_parsed, note.practice_days)
     except ValueError:
         return Proposal(question="Could you confirm the exact date and requested change?", changes=[])
+
+
+@app.get("/tournaments")
+def tournaments(today: date | None = None):
+    from backend.tournaments import discover
+    return discover(today)

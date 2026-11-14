@@ -14,15 +14,16 @@
 <script src="planner.js" defer></script>
 <script src="schedule-ui.js" defer></script>
 <script src="chat.js" defer></script>
+<script src="tournaments.js" defer></script>
 </head>
 <body>
-<header class="top"><div class="shell top-inner"><a class="brand" href="./"><span class="mark" aria-hidden="true">∕∕</span> KYORUGI</a><a class="top-link" href="#sources">Training sources <span aria-hidden="true">↗</span></a></div></header>
-<main class="shell">
+<header class="top"><div class="shell top-inner"><a class="brand" href="./"><span class="mark" aria-hidden="true">∕∕</span> KYORUGI</a><nav aria-label="Main navigation"><a href="#planner">Planner</a><a href="#tournaments">Tournaments <span id="tournament-count">0</span></a><a class="top-link" href="#sources">Training sources <span aria-hidden="true">↗</span></a></nav></div></header>
+<main class="shell" id="planner">
 <section class="hero" aria-labelledby="title">
   <div class="hero-copy"><p class="kicker"><span></span> COLLEGIATE TAEKWONDO</p><h1 id="title">Sparring<br>Training Planner</h1><p>Plan strength and conditioning around your classes, team practices, and tournament day.</p></div>
 </section>
 <section class="settings" aria-label="Training settings">
-  <div class="setting"><label for="tournament">Tournament date</label><div class="date-line"><input type="date" id="tournament"><button id="clear-date" class="quiet" type="button" hidden>Clear</button></div></div>
+  <div class="setting"><strong>My tournaments</strong><p id="tournament-summary">No tournaments selected</p><a href="#tournaments">Find upcoming tournaments →</a></div>
   <div class="setting"><label for="course">Course load this week</label><select id="course"><option value="normal">Regular week</option><option value="high">High coursework</option></select></div>
   <div class="phase" role="status"><span>TRAINING PHASE</span><strong id="phase"></strong><small id="countdown"></small></div>
 </section>
@@ -75,7 +76,7 @@
 </section>
 <section class="schedule" aria-labelledby="week-title">
   <div class="week-heading"><div><p class="eyebrow">WEEKLY SCHEDULE</p><h2 id="week-title"></h2></div><div class="week-nav"><button id="previous" aria-label="Previous week">←</button><button id="today">This week</button><button id="next" aria-label="Next week">→</button></div></div>
-  <p class="week-note">Select a day for workouts, commitments, and published competitions. Set your own tournament date if you plan to compete.</p>
+  <p class="week-note">Select a day for workouts, commitments, and published competitions. Add tournaments below to reserve competition days and adapt your training.</p>
   <div class="summary"><span><i class="practice"></i><strong id="practice-count"></strong></span><span><i class="extra"></i><strong id="minutes"></strong> extra training</span><span><i class="rest"></i><strong id="rest-days"></strong> rest days</span></div>
   <div id="week" class="week" aria-label="Choose a day to see workout details"></div>
   <article class="details" aria-labelledby="detail-title">
@@ -95,6 +96,13 @@
       </div>
     </div>
   </article>
+</section>
+<section id="tournaments" class="tournaments" aria-labelledby="tournaments-title">
+  <div class="week-heading"><div><p class="eyebrow">PLAN YOUR COMPETITION SEASON</p><h2 id="tournaments-title">Upcoming tournaments</h2></div><button type="button" id="refresh-tournaments">Refresh events</button></div>
+  <p>Discover published competitions and add them to your schedule. Adding an event marks your plan to attend; complete registration with the organizer separately.</p>
+  <p id="tournament-status" role="status">Loading tournaments…</p>
+  <div class="tournament-layout"><div><label for="tournament-search">Search by tournament or location</label><input id="tournament-search" type="search" placeholder="Search tournaments…"><div id="tournament-results" class="tournament-list"></div></div>
+  <aside aria-labelledby="my-tournaments-title"><h3 id="my-tournaments-title">My tournaments</h3><p>Saved in this browser · planned attendance</p><div id="my-tournaments" class="tournament-list"></div></aside></div>
 </section>
 <section class="chat" aria-labelledby="chat-title">
   <p class="eyebrow">SCHEDULE ASSISTANT</p>

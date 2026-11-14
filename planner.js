@@ -26,7 +26,7 @@ function readSettings() {
   try {
     const saved = JSON.parse(localStorage.getItem(storageKey));
     if (saved && typeof saved === 'object') {
-      return { tournament: saved.tournament || '', weeks: saved.weeks || {}, club: saved.club || 'berkeley', teams: saved.teams || {}, commitments: saved.commitments };
+      return { tournaments: Array.isArray(saved.tournaments) ? saved.tournaments.filter(validTournament) : [], tournament: saved.tournament || '', weeks: saved.weeks || {}, club: saved.club || 'berkeley', teams: saved.teams || {}, commitments: saved.commitments };
     }
   } catch {}
   return { tournament: '', weeks: {}, club: 'berkeley', teams: {} };
@@ -116,7 +116,9 @@ function buildWeek(phase, high, practice, previousSaturday, tournamentIndex, tea
 
 function planForWeek(start, state) {
   const week = state.weeks[dateKey(start)] || {};
-  const tournament = state.tournament ? new Date(`${state.tournament}T12:00:00`) : null;
+  const enrolled = selectedTournaments(state);
+  const nextEvent = enrolled.find(event => event.end >= dateKey(start));
+  const tournament = nextEvent ? new Date(`${nextEvent.start < dateKey(start) ? dateKey(start) : nextEvent.start}T12:00:00`) : null;
   const phase = phaseFor(start, tournament);
   const tournamentIndex = phase === 'event' ? dayDistance(start, tournament) : -1;
   const team = teamBlocks(state, start);
@@ -125,6 +127,12 @@ function planForWeek(start, state) {
   const previousPractice = previous?.practiceByClub?.[state.club] || (state.club === 'berkeley' ? previous?.practice : {});
   const previousSaturday = teamBlocks(state, addDays(start, -7)).some(block => block.day === 5) ? previousPractice?.[5] : undefined;
   const plan = buildWeek(phase, week.course === 'high', practice, previousSaturday, tournamentIndex, team);
+  for (let index = 0; index < 7; index++) {
+    const key = dateKey(addDays(start, index));
+    if (enrolled.some(event => event.start <= key && event.end >= key)) {
+      plan[index] = trainingDay('Tournament', 'event', 'Competition day', 'Your selected tournaments are listed below. Follow the organizer’s schedule and your coach’s guidance.');
+    }
+  }
   const commitments = week.commitments ?? state.commitments;
   const wednesday = plan[2];
   if (wednesday.type === 'extra' && week.bike === 'skip') {
@@ -195,12 +203,11 @@ function render(focusDay = false) {
     ? `${dateFormatter.format(weekStart)}–${end.getDate()}`
     : `${dateFormatter.format(weekStart)} – ${dateFormatter.format(end)}`;
   byId('week-title').textContent = `${weekLabel}, ${end.getFullYear()}`;
-  byId('tournament').value = settings.tournament;
-  byId('clear-date').hidden = !settings.tournament;
+  if (typeof renderTournaments === 'function') renderTournaments();
   byId('course').value = weekSettings.course || 'normal';
   byId('phase').textContent = { base: 'Build your base', build: 'Competition build', event: 'Tournament week', after: 'Back to base' }[phase];
   const distance = tournament ? dayDistance(new Date(), tournament) : null;
-  byId('countdown').textContent = distance === null ? 'Set a date to adapt the plan'
+  byId('countdown').textContent = distance === null ? 'Add a tournament to adapt the plan'
     : distance === 0 ? 'Tournament today'
     : distance > 0 ? `${distance} ${distance === 1 ? 'day' : 'days'} until tournament`
     : `Tournament was ${-distance} ${distance === -1 ? 'day' : 'days'} ago`;
@@ -210,7 +217,8 @@ function render(focusDay = false) {
   byId('minutes').textContent = minimum === maximum ? `${minimum} min` : `${minimum}–${maximum} min`;
   byId('rest-days').textContent = plan.filter(day => day.type === 'rest').length;
   const count = plan.filter(day => day.type === 'practice').length;
-  byId('practice-count').textContent = tournamentIndex < 0 ? `${count} team practices` : `${count} practices + tournament`;
+  const eventDays = plan.filter(day => day.type === 'event').length;
+  byId('practice-count').textContent = `${count} team ${count === 1 ? 'practice' : 'practices'}${eventDays ? ` + ${eventDays} competition ${eventDays === 1 ? 'day' : 'days'}` : ''}`;
 
   byId('week').innerHTML = plan.map((day, index) => `
     <button class="day ${day.type}" data-day="${index}" aria-pressed="${index === selectedDay}">
@@ -249,6 +257,14 @@ function render(focusDay = false) {
     agenda.append(title, list);
   }
   const selectedDate = dateKey(addDays(weekStart, selectedDay));
+  const attending = selectedTournaments(settings).filter(event => event.start <= selectedDate && event.end >= selectedDate);
+  for (const event of attending) {
+    const row = document.createElement('p');
+    row.className = 'club-event-detail';
+    row.textContent = `Planned attendance · ${event.title}${event.location ? ' · ' + event.location : ''}`;
+    if (booked.length || fixed.length) row.append(' · overlaps classes or team practice');
+    agenda.append(row);
+  }
   const listed = events.filter(event => event.start <= selectedDate && event.end >= selectedDate);
   for (const event of listed) {
     const row = document.createElement('p');
@@ -291,17 +307,6 @@ byId('practice-load').addEventListener('change', event => {
   const week = settings.weeks[dateKey(weekStart)] || {};
   const practice = week.practiceByClub?.[settings.club] || (settings.club === 'berkeley' ? week.practice : {});
   setWeekOption('practiceByClub', { ...week.practiceByClub, [settings.club]: { ...practice, [selectedDay]: event.target.value } });
-});
-byId('tournament').addEventListener('change', event => {
-  settings.tournament = event.target.value;
-  saveSettings();
-  render();
-});
-byId('clear-date').addEventListener('click', () => {
-  settings.tournament = '';
-  saveSettings();
-  render();
-  byId('tournament').focus();
 });
 byId('previous').addEventListener('click', () => goToWeek(addDays(weekStart, -7)));
 byId('next').addEventListener('click', () => goToWeek(addDays(weekStart, 7)));

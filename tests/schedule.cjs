@@ -61,5 +61,18 @@ assert.equal(planForWeek(start, {...initial, club:'menlo'}).events[0].title, 'UC
 assert.equal(planForWeek(start, {...initial, club:'ucd'}).events[0].start, '2026-11-15');
 assert.equal(planForWeek(start, {...initial, club:'menlo'}).tournament, null);
 assert.equal(planForWeek(start, {...initial, club:'usc', teams:{usc:[{day:3,start:600,end:720}]}}).team[0].day, 3);
+
+const multi = { ...initial, tournaments: [
+  { id:'a', title:'First', start:'2026-11-14', end:'2026-11-17' },
+  { id:'b', title:'Second', start:'2026-11-19', end:'2026-11-19' }
+] };
+assert.equal(planForWeek(start, multi).plan[5].type, 'event');
+assert.equal(planForWeek(start, multi).plan[6].type, 'event');
+const nextPlan = planForWeek(addDays(start, 7), multi);
+for (const index of [0, 1, 3]) assert.equal(nextPlan.plan[index].type, 'event');
+assert.equal(nextPlan.plan[2].type, 'rest');
+assert.equal(planForWeek(start, {...multi, tournaments:[]}).plan[5].type, 'practice');
+assert.equal(selectedTournaments({...multi, tournament:'2026-12-01'}).length, 3);
+assert.equal(validTournament({id:'bad',title:'Bad',start:'2026-02-30',end:'2026-03-01'}), false);
 `, context);
 console.log('Scheduling, clarification, cross-week preview, and failed-proposal isolation checks passed.');
