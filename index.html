@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="An adaptable weekly Olympic-style Taekwondo sparring plan for college athletes.">
+<meta name="theme-color" content="#191917">
+<title>Kyorugi | Weekly Training Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="planner.js" defer></script>
+</head>
+<body>
+<header class="top"><div class="shell top-inner"><a class="brand" href="./"><span class="mark" aria-hidden="true">∕∕</span> KYORUGI</a><a class="top-link" href="#sources">Training sources <span aria-hidden="true">↗</span></a></div></header>
+<main class="shell">
+<section class="hero" aria-labelledby="title">
+  <div class="hero-copy"><p class="kicker"><span></span> OLYMPIC-STYLE TAEKWONDO</p><h1 id="title">Sparring<br>Training Planner</h1><p>Build power and round endurance around practice, classes, and tournament day.</p></div>
+</section>
+<section class="settings" aria-label="Training settings">
+  <div class="setting"><label for="tournament">Tournament date</label><div class="date-line"><input type="date" id="tournament"><button id="clear-date" class="quiet" type="button" hidden>Clear</button></div></div>
+  <div class="setting"><label for="course">Course load this week</label><select id="course"><option value="normal">Regular week</option><option value="high">High coursework</option></select></div>
+  <div class="setting"><label for="rounds">Hard rounds at practice</label><select id="rounds"><option value="regular">Regular hard rounds</option><option value="light">Light on hard rounds</option></select></div>
+  <div class="phase" role="status"><span>TRAINING PHASE</span><strong id="phase"></strong><small id="countdown"></small></div>
+</section>
+<section class="schedule" aria-labelledby="week-title">
+  <div class="week-heading"><div><p class="eyebrow">WEEKLY SCHEDULE</p><h2 id="week-title"></h2></div><div class="week-nav"><button id="previous" aria-label="Previous week">←</button><button id="today">This week</button><button id="next" aria-label="Next week">→</button></div></div>
+  <div class="summary"><span><i class="practice"></i><strong id="practice-count"></strong></span><span><i class="extra"></i><strong id="minutes"></strong> extra training</span><span><i class="rest"></i><strong id="rest-days"></strong> rest days</span></div>
+  <div id="week" class="week" aria-label="Choose a day to see workout details"></div>
+  <article class="details" id="details" aria-live="polite"></article>
+</section>
+<section class="guides" aria-label="Training guidance">
+<details><summary>Getting started</summary><p>For your first two weeks, use two squat sets and four brisk bike intervals. Move up to the listed amounts if your legs still feel sharp at practice and the sessions fit your school week. If Tuesday was especially hard, ride easy throughout Wednesday.</p></details>
+<details id="sources"><summary>Training sources</summary><p>The sessions adapt ideas from the published chapters of Tae Kwon Do Fury’s videos. The weekly schedule, sets, reps, and interval doses are tailored to your practice and coursework.</p><ul><li><a href="https://www.youtube.com/watch?v=YO4DI-9XR_M&t=151s" target="_blank" rel="noopener">Why you’re gassing out mid-fight</a> · Aerobic base, harder intervals nearer competition, and practice priorities.</li><li><a href="https://www.youtube.com/watch?v=f3tCXV7H8Yc&t=279s" target="_blank" rel="noopener">Taekwondo strength and conditioning for explosiveness</a> · Activation, hops, box squats, and accessories.</li><li><a href="https://www.worldtaekwondo.org/att_file/documents/WT%20Competition%20Rules%20and%20Interpretation%20%28September%2030%2C%202024%29.pdf" target="_blank" rel="noopener">World Taekwondo competition rules</a> · Round structure.</li></ul></details>
+</section>
+<footer>Settings are saved in this browser. Course load and practice intensity are set week by week.</footer>
+</main>
+</body>
+</html>
