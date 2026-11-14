@@ -3,35 +3,82 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="A personal Olympic-style sparring planner for UC Berkeley Taekwondo.">
+<meta name="description" content="An Olympic-style sparring planner for collegiate Taekwondo athletes.">
 <meta name="theme-color" content="#191917">
-<title>Kyorugi | UC Berkeley Taekwondo Planner</title>
+<title>Kyorugi | Collegiate Taekwondo Planner</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<script src="schedule.js" defer></script>
 <script src="planner.js" defer></script>
+<script src="schedule-ui.js" defer></script>
+<script src="chat.js" defer></script>
 </head>
 <body>
 <header class="top"><div class="shell top-inner"><a class="brand" href="./"><span class="mark" aria-hidden="true">∕∕</span> KYORUGI</a><a class="top-link" href="#sources">Training sources <span aria-hidden="true">↗</span></a></div></header>
 <main class="shell">
 <section class="hero" aria-labelledby="title">
-  <div class="hero-copy"><p class="kicker"><span></span> UC BERKELEY TAEKWONDO</p><h1 id="title">Sparring<br>Training Planner</h1><p>Plan strength and conditioning around coach-led practice, Berkeley coursework, and tournament day.</p></div>
+  <div class="hero-copy"><p class="kicker"><span></span> COLLEGIATE TAEKWONDO</p><h1 id="title">Sparring<br>Training Planner</h1><p>Plan strength and conditioning around your classes, team practices, and tournament day.</p></div>
 </section>
 <section class="settings" aria-label="Training settings">
   <div class="setting"><label for="tournament">Tournament date</label><div class="date-line"><input type="date" id="tournament"><button id="clear-date" class="quiet" type="button" hidden>Clear</button></div></div>
   <div class="setting"><label for="course">Course load this week</label><select id="course"><option value="normal">Regular week</option><option value="high">High coursework</option></select></div>
   <div class="phase" role="status"><span>TRAINING PHASE</span><strong id="phase"></strong><small id="countdown"></small></div>
 </section>
+<section class="setup" aria-labelledby="setup-title">
+  <div class="setup-title"><p class="eyebrow">YOUR COLLEGE WEEK</p><h2 id="setup-title">Team &amp; class schedule</h2></div>
+  <div class="setup-grid">
+    <div class="setup-panel">
+      <label for="club">Collegiate Taekwondo club</label>
+      <select id="club">
+        <option value="berkeley">UC Berkeley Taekwondo</option>
+        <option value="fresno">Fresno State Taekwondo</option>
+        <option value="menlo">Menlo College Taekwondo</option>
+        <option value="usc">USC Taekwondo</option>
+        <option value="uci">UCI Taekwondo</option>
+        <option value="ucsd">UCSD Taekwondo</option>
+        <option value="ucd">UCD Taekwondo</option>
+        <option value="ucla">UCLA Taekwondo</option>
+      </select>
+      <p id="club-note"></p>
+      <details><summary>Set recurring team practice times</summary>
+        <p>Enter the days and times your coach provides. These blocks stay fixed.</p>
+        <textarea id="team-times" aria-label="Team practice times" rows="3" placeholder="Tue 19:00–21:00&#10;Thu 19:00–21:00&#10;Sat 09:00–11:00"></textarea>
+        <button type="button" id="save-team">Save practice times</button>
+        <p id="team-status" role="status"></p>
+      </details>
+    </div>
+    <div class="setup-panel">
+      <label for="schedule-file">Import commitments</label>
+      <input type="file" id="schedule-file" accept=".pdf,.ics,.csv,.txt" multiple>
+      <p>PDF, ICS, CSV, or TXT. Files are read in your browser. Confirm times before saving.</p>
+      <fieldset class="scope"><legend>Apply schedule to</legend>
+        <label><input type="radio" name="schedule-scope" value="week" checked> Displayed week</label>
+        <label><input type="radio" name="schedule-scope" value="recurring"> Every week</label>
+      </fieldset>
+      <p id="import-target"></p>
+      <details id="schedule-review"><summary>Review or enter time blocks</summary>
+        <p>One block per line. Use a weekday, start and end time, and optional label.</p>
+        <textarea id="commitments" aria-label="Class and commitment time blocks" rows="4" placeholder="Mon 09:00–10:30 Chemistry&#10;Wed 14:00–16:00 Lab"></textarea>
+        <button type="button" id="save-commitments">Apply schedule</button>
+        <button type="button" id="clear-commitments">Clear schedule</button>
+        <details id="import-text" hidden><summary>Extracted text for review</summary><pre id="import-raw"></pre></details>
+      </details>
+      <p id="import-status" role="status"></p>
+    </div>
+  </div>
+</section>
 <section class="schedule" aria-labelledby="week-title">
   <div class="week-heading"><div><p class="eyebrow">WEEKLY SCHEDULE</p><h2 id="week-title"></h2></div><div class="week-nav"><button id="previous" aria-label="Previous week">←</button><button id="today">This week</button><button id="next" aria-label="Next week">→</button></div></div>
-  <p class="week-note">Tuesday and Thursday nights and Saturday mornings are coach-led. Select a practice to log how hard it felt and adjust your next solo workout.</p>
+  <p class="week-note">Select a day for its workouts and commitments. Log how hard team practice felt to adjust solo training.</p>
   <div class="summary"><span><i class="practice"></i><strong id="practice-count"></strong></span><span><i class="extra"></i><strong id="minutes"></strong> extra training</span><span><i class="rest"></i><strong id="rest-days"></strong> rest days</span></div>
   <div id="week" class="week" aria-label="Choose a day to see workout details"></div>
   <article class="details" aria-labelledby="detail-title">
     <div><p class="eyebrow" id="detail-date"></p><h3 id="detail-title"></h3><p class="detail-meta" id="detail-time"></p></div>
     <div class="detail-content">
       <div id="details" aria-live="polite"></div>
+      <div id="day-commitments"></div>
       <div class="practice-log" id="practice-log" hidden>
         <label for="practice-load">How hard was practice?</label>
         <select id="practice-load">
@@ -45,11 +92,24 @@
     </div>
   </article>
 </section>
+<section class="chat" aria-labelledby="chat-title">
+  <p class="eyebrow">SCHEDULE ASSISTANT</p>
+  <h2 id="chat-title">Update your week</h2>
+  <p>Describe what happened at practice or what’s coming up. Review the changes before applying them.</p>
+  <p id="chat-mode"></p>
+  <form id="chat-form">
+    <label for="chat-message">Practice or schedule note</label>
+    <textarea id="chat-message" maxlength="1500" required rows="3" placeholder="Tuesday was hard, and I have two midterms this week."></textarea>
+    <div id="chat-access" hidden><label for="chat-token">Assistant access token</label><input type="password" id="chat-token" autocomplete="off"></div>
+    <div class="chat-actions"><button type="submit" id="chat-preview">Preview changes</button><button type="button" id="chat-apply" hidden>Apply changes</button></div>
+  </form>
+  <div id="chat-result" role="status"></div>
+</section>
 <section class="guides" aria-label="Training guidance">
 <details><summary>Getting started</summary><p>For your first two weeks, use two squat sets and four brisk bike intervals. Move up to the listed amounts if your legs still feel sharp at practice and the sessions fit your school week. If you still feel unusually tired or sore, take the solo session off.</p></details>
 <details id="sources"><summary>Training sources</summary><p>The sessions adapt ideas from the published chapters of Tae Kwon Do Fury’s videos. The weekly schedule, sets, reps, and interval doses are tailored to your practice and coursework.</p><ul><li><a href="https://recwell.berkeley.edu/competitive-programs/martial-arts/martial-arts-clubs-and-contact/" target="_blank" rel="noopener">UC Berkeley RecWell martial arts clubs</a> · Taekwondo program information.</li><li><a href="https://www.youtube.com/watch?v=YO4DI-9XR_M&t=151s" target="_blank" rel="noopener">Why you’re gassing out mid-fight</a> · Aerobic base, harder intervals nearer competition, and practice priorities.</li><li><a href="https://www.youtube.com/watch?v=f3tCXV7H8Yc&t=279s" target="_blank" rel="noopener">Taekwondo strength and conditioning for explosiveness</a> · Activation, hops, box squats, and accessories.</li><li><a href="https://www.worldtaekwondo.org/att_file/documents/WT%20Competition%20Rules%20and%20Interpretation%20%28September%2030%2C%202024%29.pdf" target="_blank" rel="noopener">World Taekwondo competition rules</a> · Round structure.</li></ul></details>
 </section>
-<footer>Personal training planner for UC Berkeley Taekwondo. Your settings and practice logs are saved in this browser.</footer>
+<footer>Collegiate Taekwondo training planner. Settings, confirmed schedules, and practice logs are saved in this browser.</footer>
 </main>
 </body>
 </html>
