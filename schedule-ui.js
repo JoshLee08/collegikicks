@@ -212,9 +212,13 @@ async function loadClubCalendar() {
   const button = byId('refresh-clubs');
   button.disabled = true;
   try {
-    const response = await fetch('club-calendar.json', { cache: 'no-cache' });
-    if (!response.ok) throw new Error('Calendar feed unavailable');
-    publishedClubs = (await response.json()).clubs;
+    const response = await fetch('club-calendar.json', { cache: 'no-cache' }).catch(() => null);
+    const feed = response?.ok ? response : await fetch(
+      'https://raw.githubusercontent.com/JoshLee08/kyorugi-weekly-planner/main/club-calendar.json',
+      { cache: 'no-cache' }
+    );
+    if (!feed.ok) throw new Error('Calendar feed unavailable');
+    publishedClubs = (await feed.json()).clubs;
     render();
     status.textContent = 'Published club calendar loaded.';
   } catch {
