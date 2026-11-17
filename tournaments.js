@@ -1,5 +1,5 @@
 // Set to the Python host's HTTPS origin when deploying separately from GitHub Pages.
-const tournamentApiOrigin = '';
+const tournamentApiOrigin = 'https://kyorugi-weekly-planner-api.onrender.com';
 let tournamentCatalog = [];
 
 function eventCard(event, selected) {
