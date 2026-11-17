@@ -59,45 +59,45 @@ function useTournamentLocation() {
   );
 }
 
-function eventCard(event, selected) {
+const tournamentDateFormat = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+function eventCard(event, selected, savedList = false) {
   const card = document.createElement('article');
   card.className = 'tournament-card';
-  const title = document.createElement('h4');
+  const date = document.createElement('p');
+  date.className = 'tournament-date';
+  const start = new Date(event.start + 'T12:00:00');
+  date.textContent = event.start === event.end ? tournamentDateFormat.format(start)
+    : tournamentDateFormat.formatRange(start, new Date(event.end + 'T12:00:00'));
+  const title = document.createElement(savedList ? 'h3' : 'h2');
   title.textContent = event.title;
-  const details = document.createElement('p');
-  const format = value => new Date(value + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-  details.textContent = `${format(event.start)}${event.end !== event.start ? ' – ' + format(event.end) : ''} · ${event.location || 'Location to be confirmed'}`;
-  card.append(title, details);
+  const location = document.createElement('p');
+  location.textContent = event.location || 'Location to be confirmed';
+  card.append(date, title, location);
+
   const miles = tournamentMiles(event);
   const tags = [event.category, event.tentative && 'Tentative date', Number.isFinite(miles) && `About ${Math.round(miles)} mi away`].filter(Boolean);
   if (tags.length) {
     const metadata = document.createElement('p');
+    metadata.className = 'tournament-meta';
     metadata.textContent = tags.join(' · ');
     card.append(metadata);
   }
   if (selected && selectedTournaments(settings).some(other => other.id !== event.id && other.start <= event.end && other.end >= event.start)) {
     const conflict = document.createElement('p');
+    conflict.className = 'tournament-conflict';
     conflict.textContent = 'Overlaps another selected tournament';
     card.append(conflict);
   }
-  if (/^https:\/\//i.test(event.source || '')) {
-    const link = document.createElement('a');
-    link.href = event.source;
-    link.target = '_blank';
-    link.rel = 'noopener';
-    link.textContent = 'Event source ↗';
-    card.append(link);
-  }
-  if (event.checked) {
-    const checked = document.createElement('small');
-    checked.textContent = `Source checked ${event.checked}`;
-    card.append(checked);
-  }
+
+  const actions = document.createElement('div');
+  actions.className = 'tournament-links';
   const button = document.createElement('button');
   button.type = 'button';
-  button.textContent = selected ? '✓ Added · Remove' : '+ Add';
-  button.setAttribute('aria-label', `${selected ? 'Remove' : 'Add'} ${event.title} ${selected ? 'from' : 'to'} my schedule`);
-  button.setAttribute('aria-pressed', String(selected));
+  button.classList.toggle('primary', !selected);
+  button.textContent = selected ? 'Remove from plan' : 'Add to plan';
+  button.setAttribute('aria-label', `${selected ? 'Remove' : 'Add'} ${event.title} ${selected ? 'from' : 'to'} my plan`);
+  button.dataset.tournament = event.id;
   button.addEventListener('click', () => {
     if (selected) {
       settings.tournaments = (settings.tournaments || []).filter(item => item.id !== event.id);
@@ -106,15 +106,36 @@ function eventCard(event, selected) {
       settings.tournaments = [...(settings.tournaments || []).filter(item => item.id !== event.id), event];
     }
     saveSettings();
+    const nextSaved = card.nextElementSibling?.querySelector('button') || card.previousElementSibling?.querySelector('button');
     renderTournaments();
+    const match = id => byId(id).querySelector(`button[data-tournament="${CSS.escape(event.id)}"]`);
+    const nextFocus = savedList && nextSaved
+      ? byId('my-tournaments').querySelector(`button[data-tournament="${CSS.escape(nextSaved.dataset.tournament)}"]`)
+      : match('tournament-results');
+    (nextFocus || byId('tournament-search')).focus();
     byId('tournament-status').textContent = `${event.title} ${selected ? 'removed from' : 'added to'} your schedule.`;
   });
-  card.append(button);
+  actions.append(button);
   if (selected) {
     const view = document.createElement('a');
     view.href = `./?week=${encodeURIComponent(event.start)}#week-title`;
     view.textContent = 'View week →';
-    card.append(view);
+    view.setAttribute('aria-label', `View week for ${event.title}`);
+    actions.append(view);
+  }
+  if (/^https:\/\//i.test(event.source || '')) {
+    const link = document.createElement('a');
+    link.href = event.source;
+    link.target = '_blank';
+    link.rel = 'noopener';
+    link.textContent = 'Organizer ↗';
+    actions.append(link);
+  }
+  card.append(actions);
+  if (event.checked) {
+    const checked = document.createElement('small');
+    checked.textContent = `Source checked ${event.checked}`;
+    card.append(checked);
   }
   return card;
 }
@@ -122,9 +143,10 @@ function eventCard(event, selected) {
 function renderTournaments() {
   const selected = selectedTournaments(settings);
   renderTournamentSummary();
+  byId('jump-to-saved').hidden = !selected.length;
   const mine = byId('my-tournaments');
-  mine.replaceChildren(...selected.map(event => eventCard(event, true)));
-  if (!selected.length) mine.textContent = 'Your season starts here. Use + Add to choose tournaments.';
+  mine.replaceChildren(...selected.map(event => eventCard(event, true, true)));
+  if (!selected.length) mine.textContent = 'No tournaments in your plan. Add one from the results.';
   const query = byId('tournament-search').value.trim().toLowerCase();
   const state = byId('tournament-state').value;
   const category = byId('tournament-type').value;
@@ -145,9 +167,26 @@ function renderTournaments() {
   byId('tournament-result-count').textContent = `${matches.length} ${matches.length === 1 ? 'tournament' : 'tournaments'}`;
   const results = byId('tournament-results');
   results.replaceChildren(...matches.map(event => eventCard(event, selected.some(item => item.id === event.id))));
-  if (!matches.length) results.textContent = query || state || category || radius
-    ? 'No tournaments match these filters.'
-    : 'No upcoming tournaments found in the available calendars.';
+  if (!matches.length) {
+    const filtered = query || state || category || radius;
+    const empty = document.createElement('div');
+    empty.className = 'tournament-empty';
+    const message = document.createElement('p');
+    message.textContent = filtered ? 'No tournaments match these filters.' : 'No upcoming tournaments found in the available calendars.';
+    empty.append(message);
+    if (filtered) {
+      const clear = document.createElement('button');
+      clear.type = 'button';
+      clear.textContent = 'Clear filters';
+      clear.addEventListener('click', () => {
+        for (const id of ['tournament-search', 'tournament-state', 'tournament-type', 'tournament-radius']) byId(id).value = '';
+        renderTournaments();
+        byId('tournament-search').focus();
+      });
+      empty.append(clear);
+    }
+    results.append(empty);
+  }
 }
 
 async function tournamentFeed(path, timeout) {

@@ -17,8 +17,9 @@ function dayDistance(start, end) {
 const requestedWeek = new URLSearchParams(window.location.search).get('week');
 const requestedDate = requestedWeek && /^\d{4}-\d{2}-\d{2}$/.test(requestedWeek)
   ? new Date(requestedWeek + 'T12:00:00') : null;
-let weekStart = monday(requestedDate && dateKey(requestedDate) === requestedWeek ? requestedDate : new Date());
-let selectedDay = 0;
+const initialDate = requestedDate && dateKey(requestedDate) === requestedWeek ? requestedDate : new Date();
+let weekStart = monday(initialDate);
+let selectedDay = dayDistance(weekStart, initialDate);
 
 function phaseFor(start, tournament) {
   if (!tournament) return 'base';
@@ -183,6 +184,12 @@ function render(focusDay = false) {
     ? `${dateFormatter.format(weekStart)}–${end.getDate()}`
     : `${dateFormatter.format(weekStart)} – ${dateFormatter.format(end)}`;
   byId('week-title').textContent = `${weekLabel}, ${end.getFullYear()}`;
+  const classSummary = byId('class-summary');
+  const scopedClasses = Array.isArray(weekSettings.commitments);
+  const classCount = commitments.length;
+  classSummary.textContent = `${classCount} class ${classCount === 1 ? 'block' : 'blocks'} · ${scopedClasses ? 'This week' : 'Every week'}`;
+  classSummary.hidden = !classCount;
+  byId('add-classes').hidden = !classSummary.hidden;
   renderTournamentSummary();
   byId('course').value = weekSettings.course || 'normal';
   byId('phase').textContent = { base: 'Build your base', build: 'Competition build', event: 'Tournament week', after: 'Back to base' }[phase];
@@ -195,19 +202,34 @@ function render(focusDay = false) {
   const minimum = plan.reduce((sum, day) => sum + day.minutes[0], 0);
   const maximum = plan.reduce((sum, day) => sum + day.minutes[1], 0);
   byId('minutes').textContent = minimum === maximum ? `${minimum} min` : `${minimum}–${maximum} min`;
-  byId('rest-days').textContent = plan.filter(day => day.type === 'rest').length;
+  const restDays = plan.filter(day => day.type === 'rest').length;
+  byId('rest-days').textContent = `${restDays} rest ${restDays === 1 ? 'day' : 'days'}`;
   const count = plan.filter(day => day.type === 'practice').length;
   const eventDays = plan.filter(day => day.type === 'event').length;
   byId('practice-count').textContent = `${count} team ${count === 1 ? 'practice' : 'practices'}${eventDays ? ` + ${eventDays} competition ${eventDays === 1 ? 'day' : 'days'}` : ''}`;
 
-  byId('week').innerHTML = plan.map((day, index) => `
-    <button class="day ${day.type}" data-day="${index}" aria-pressed="${index === selectedDay}">
-      <span class="day-top">${days[index]} · ${addDays(weekStart, index).getDate()}</span>
+  const week = byId('week');
+  const dayDetail = byId('day-detail');
+  const active = document.activeElement;
+  const focusedDay = active?.dataset.day;
+  const detailWasFocused = dayDetail.contains(active);
+  if (week.contains(dayDetail)) week.after(dayDetail);
+  const today = dateKey(new Date());
+  week.innerHTML = plan.map((day, index) => {
+    const date = addDays(weekStart, index);
+    const isToday = dateKey(date) === today;
+    return `
+    <button type="button" class="day ${day.type}" data-day="${index}" aria-controls="day-detail" aria-pressed="${index === selectedDay}"${isToday ? ' aria-current="date"' : ''}>
+      <span class="day-top"><time datetime="${dateKey(date)}">${days[index]} ${date.getDate()}</time>${isToday
+        ? '<span class="today-label">Today</span>' : ''}</span>
       <strong>${day.title}</strong>
-      ${events.some(event => event.start <= dateKey(addDays(weekStart, index)) && event.end >= dateKey(addDays(weekStart, index)))
+      ${day.type === 'extra' ? '<span class="day-type">Solo training</span>' : ''}
+      ${events.some(event => event.start <= dateKey(date) && event.end >= dateKey(date))
         ? '<span class="club-event-tag">Competition listed</span>' : ''}
       <span class="day-time">${day.time}${day.type === 'practice' && practiceLabels[practice[index]] ? ` · ${practiceLabels[practice[index]]}` : ''}</span>
-    </button>`).join('');
+    </button>`;
+  }).join('');
+  placeDayDetail();
   const day = plan[selectedDay];
   const content = Array.isArray(day.content)
     ? `<ol>${day.content.map(item => `<li>${item}</li>`).join('')}</ol>`
@@ -266,7 +288,11 @@ function render(focusDay = false) {
     5: practice[5] === 'hard' ? 'Next week’s lift will be shortened if it’s scheduled.' : 'Next week’s lift follows your coursework and tournament settings.'
   };
   byId('practice-feedback').textContent = practiceUpdates[selectedDay] || 'Practice effort is saved with this week.';
-  if (focusDay) byId('week').children[selectedDay].focus();
+  if (focusDay || focusedDay !== undefined) {
+    week.querySelector(`[data-day="${focusDay ? selectedDay : focusedDay}"]`).focus({ preventScroll: !focusDay });
+  } else if (detailWasFocused && active.isConnected && document.activeElement !== active) {
+    active.focus({ preventScroll: true });
+  }
 }
 
 function setWeekOption(field, value) {
@@ -278,11 +304,50 @@ function setWeekOption(field, value) {
 
 function goToWeek(date) {
   weekStart = monday(date);
-  selectedDay = 0;
+  selectedDay = dayDistance(weekStart, date);
   render();
 }
 
+function placeDayDetail() {
+  const detail = byId('day-detail');
+  const week = byId('week');
+  const selected = week.querySelector('.day[aria-pressed="true"]');
+  if (compactWeek.matches && selected) {
+    if (selected.nextElementSibling !== detail) selected.after(detail);
+  } else if (week.contains(detail)) {
+    week.after(detail);
+  }
+}
+
 byId('course').addEventListener('change', event => setWeekOption('course', event.target.value));
+const compactWeek = window.matchMedia('(max-width: 720px)');
+compactWeek.addEventListener('change', () => {
+  const active = document.activeElement;
+  const hadFocus = byId('day-detail').contains(active);
+  placeDayDetail();
+  if (hadFocus && active !== document.activeElement) active.focus({ preventScroll: true });
+});
+
+const setup = byId('schedule-setup');
+const editSchedule = byId('edit-schedule');
+const addClasses = byId('add-classes');
+let setupTrigger = editSchedule;
+
+function toggleSetup(open, trigger = setupTrigger) {
+  setup.hidden = !open;
+  editSchedule.setAttribute('aria-expanded', String(open));
+  addClasses.setAttribute('aria-expanded', String(open));
+  if (open) {
+    setupTrigger = trigger;
+    (trigger === addClasses ? byId('schedule-file') : byId('club')).focus();
+  } else {
+    (trigger.hidden ? editSchedule : trigger).focus();
+  }
+}
+
+editSchedule.addEventListener('click', () => toggleSetup(setup.hidden, editSchedule));
+addClasses.addEventListener('click', () => toggleSetup(setup.hidden, addClasses));
+byId('close-setup').addEventListener('click', () => toggleSetup(false));
 byId('practice-load').addEventListener('change', event => {
   const week = settings.weeks[dateKey(weekStart)] || {};
   const practice = week.practiceByClub?.[settings.club] || (settings.club === 'berkeley' ? week.practice : {});
@@ -304,5 +369,4 @@ window.addEventListener('pageshow', event => {
   refreshScheduleEditor();
 });
 if (window.location.hash === '#sources') byId('sources').open = true;
-document.querySelector('.top-link').addEventListener('click', () => { byId('sources').open = true; });
 render();
