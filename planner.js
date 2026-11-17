@@ -215,7 +215,7 @@ function render(focusDay = false) {
   const detailWasFocused = dayDetail.contains(active);
   if (week.contains(dayDetail)) week.after(dayDetail);
   const today = dateKey(new Date());
-  week.innerHTML = plan.map((day, index) => {
+  const dayMarkup = plan.map((day, index) => {
     const date = addDays(weekStart, index);
     const isToday = dateKey(date) === today;
     return `
@@ -229,6 +229,13 @@ function render(focusDay = false) {
       <span class="day-time">${day.time}${day.type === 'practice' && practiceLabels[practice[index]] ? ` · ${practiceLabels[practice[index]]}` : ''}</span>
     </button>`;
   }).join('');
+  if (focusDay) {
+    for (const button of week.querySelectorAll('[data-day]')) {
+      button.setAttribute('aria-pressed', String(Number(button.dataset.day) === selectedDay));
+    }
+  } else {
+    week.innerHTML = dayMarkup;
+  }
   placeDayDetail();
   const day = plan[selectedDay];
   const content = Array.isArray(day.content)
@@ -358,9 +365,17 @@ byId('next').addEventListener('click', () => goToWeek(addDays(weekStart, 7)));
 byId('today').addEventListener('click', () => goToWeek(new Date()));
 byId('week').addEventListener('click', event => {
   const button = event.target.closest('[data-day]');
-  if (!button) return;
+  if (!button || Number(button.dataset.day) === selectedDay) return;
   selectedDay = Number(button.dataset.day);
   render(true);
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const detail = byId('day-detail');
+    for (const animation of detail.getAnimations()) animation.cancel();
+    detail.animate(
+      [{ opacity: 0.65, transform: 'translateY(4px)' }, { opacity: 1, transform: 'translateY(0)' }],
+      { duration: 200, easing: 'ease-out' }
+    );
+  }
 });
 window.addEventListener('pageshow', event => {
   if (!event.persisted) return;

@@ -451,3 +451,65 @@ body .day:focus-visible {
   .phase + .phase { padding-left: 12px; }
   .tournament-layout aside { margin-top: 4px; }
 }
+
+
+/* Animate state changes in both directions without moving surrounding controls. */
+:where(button, a, input, select, textarea, summary, .scope label, .mark, #tournament-count, .day *) {
+  transition:
+    background-color 180ms ease,
+    color 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    outline-color 180ms ease,
+    opacity 180ms ease,
+    transform 140ms ease;
+}
+button:enabled:active, summary:active { transform: translateY(1px); }
+input[type="file"]::file-selector-button {
+  transition: background-color 180ms ease, color 180ms ease;
+}
+#schedule-setup, #practice-log, #chat-apply {
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 200ms ease,
+    transform 200ms ease,
+    display 200ms allow-discrete;
+}
+:is(#schedule-setup, #practice-log, #chat-apply)[hidden] {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+@starting-style {
+  #schedule-setup:not([hidden]), #practice-log:not([hidden]), #chat-apply:not([hidden]) {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+/* Browsers that support details content transitions also animate collapse. */
+@supports selector(details::details-content) {
+  details::details-content {
+    interpolate-size: allow-keywords;
+    block-size: 0;
+    opacity: 0;
+    overflow: clip;
+    transition:
+      block-size 220ms ease,
+      opacity 180ms ease,
+      content-visibility 220ms allow-discrete;
+  }
+  details[open]::details-content {
+    block-size: auto;
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+  button:enabled:active, summary:active { transform: none; }
+  @supports selector(details::details-content) {
+    details::details-content { transition: none !important; }
+  }
+}
