@@ -5,7 +5,7 @@ function updateNavigationHeight() {
 }
 
 function updateFloatingNavigation() {
-  navigationHeader.classList.toggle('top-floating', window.scrollY >= 50);
+  navigationHeader.classList.toggle('top-floating', window.scrollY >= 75);
 }
 
 // Reserve the header's space so fixing it doesn't move the content or change scroll position.
