@@ -8,11 +8,11 @@
 <title>Tournaments | Kyorugi</title>
 <link rel="preconnect" href="https://use.typekit.net" crossorigin>
 <link rel="stylesheet" href="https://use.typekit.net/bba3xnz.css">
-<link rel="stylesheet" href="style.css?v=inverted-controls">
+<link rel="stylesheet" href="style.css?v=selected-details">
 <script src="navigation.js?v=floating-nav-75" defer></script>
 <script src="schedule.js" defer></script>
 <script src="planner-state.js" defer></script>
-<script src="tournaments.js?v=planner-redesign" defer></script>
+<script src="tournaments.js?v=standard-filters" defer></script>
 </head>
 <body>
 <div class="top-slot"><header class="top"><div class="shell top-inner"><a class="brand" href="./"><span class="mark" aria-hidden="true">∕∕</span> KYORUGI</a><nav aria-label="Main navigation"><a href="./">Planner</a><a href="tournaments.html" aria-current="page">Tournaments <span id="tournament-count">0</span></a></nav></div></header></div>
@@ -30,8 +30,8 @@
       <input id="tournament-search" type="search" placeholder="Search tournaments…">
       <div class="tournament-filters" aria-label="Tournament filters" role="group">
         <label>State <select id="tournament-state"><option value="">All states</option></select></label>
-        <label>Event type <select id="tournament-type"><option value="">All types</option><option>Collegiate</option><option>Open</option><option>State championship</option><option>Regional</option><option>National championship</option><option>Team trials</option><option>Season final</option><option>Other</option></select></label>
-        <label>Sort by <select id="tournament-sort"><option value="soonest">Date: soonest first</option><option value="latest">Date: latest first</option><option value="college">Collegiate first</option><option value="distance" disabled>Distance: nearest first</option></select></label>
+        <label>Event type <select id="tournament-type"><option value="">All types</option><option>Collegiate</option><option>Open</option><option>National pathway</option></select></label>
+        <label>Date <select id="tournament-sort"><option value="soonest">Earliest</option><option value="latest">Latest</option></select></label>
         <label>Distance <select id="tournament-radius" disabled><option value="">Any distance</option><option value="50">Within 50 miles</option><option value="100">Within 100 miles</option><option value="250">Within 250 miles</option><option value="500">Within 500 miles</option></select></label>
       </div>
       <div class="tournament-tools">

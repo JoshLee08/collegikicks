@@ -23,6 +23,18 @@ function tournamentState(event) {
   );
 }
 
+function tournamentType(event) {
+  const usatkdSource = /^https:\/\/(?:[a-z0-9-]+\.)*usatkd\.org(?:[/:?#]|$)/i.test(event.source || '');
+  if (event.sanctioningBody === 'USATKD' || event.category === 'National pathway' ||
+      usatkdSource) {
+    return 'National pathway';
+  }
+  if (event.category === 'Collegiate' || /collegiate|college|university|(?:uc davis|berkeley|ucla).*open/i.test(event.title)) {
+    return 'Collegiate';
+  }
+  return 'Open';
+}
+
 function tournamentMiles(event) {
   if (!tournamentLocation || !Number.isFinite(event.latitude) || !Number.isFinite(event.longitude)) return Infinity;
   const radians = degrees => degrees * Math.PI / 180;
@@ -36,11 +48,8 @@ function tournamentMiles(event) {
 function setTournamentLocation(location, status) {
   tournamentLocation = location;
   const distance = byId('tournament-radius');
-  const sort = byId('tournament-sort');
   distance.disabled = !location;
-  sort.querySelector('[value="distance"]').disabled = !location;
   distance.value = location ? '250' : '';
-  if (!location && sort.value === 'distance') sort.value = 'soonest';
   byId('tournament-nearby').textContent = location ? 'Clear my location' : 'Use my location';
   byId('tournament-nearby').disabled = false;
   byId('tournament-location-status').textContent = status;
@@ -76,7 +85,7 @@ function eventCard(event, selected, savedList = false) {
   card.append(date, title, location);
 
   const miles = tournamentMiles(event);
-  const tags = [event.category, event.tentative && 'Tentative date', Number.isFinite(miles) && `About ${Math.round(miles)} mi away`].filter(Boolean);
+  const tags = [tournamentType(event), event.tentative && 'Tentative date', Number.isFinite(miles) && `About ${Math.round(miles)} mi away`].filter(Boolean);
   if (tags.length) {
     const metadata = document.createElement('p');
     metadata.className = 'tournament-meta';
@@ -155,13 +164,11 @@ function renderTournaments() {
   const byDate = (a, b) => a.start.localeCompare(b.start) || a.title.localeCompare(b.title);
   const matches = tournamentCatalog.filter(event =>
     (!state || tournamentState(event) === state) &&
-    (!category || (event.category || 'Other') === category) &&
+    (!category || tournamentType(event) === category) &&
     (!radius || tournamentMiles(event) <= radius) &&
     `${event.title} ${event.location || ''} ${tournamentStates[tournamentState(event)] || ''}`.toLowerCase().includes(query)
   ).sort((a, b) => {
     if (sort === 'latest') return b.start.localeCompare(a.start) || a.title.localeCompare(b.title);
-    if (sort === 'college') return Number(b.category === 'Collegiate') - Number(a.category === 'Collegiate') || byDate(a, b);
-    if (sort === 'distance') return tournamentMiles(a) - tournamentMiles(b) || byDate(a, b);
     return byDate(a, b);
   });
   byId('tournament-result-count').textContent = `${matches.length} ${matches.length === 1 ? 'tournament' : 'tournaments'}`;

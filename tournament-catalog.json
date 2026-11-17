@@ -50,7 +50,8 @@
       "longitude": -90.049,
       "category": "Team trials",
       "source": "https://menloathletics.com/sports/taekwondo/schedule",
-      "checked": "2026-11-16"
+      "checked": "2026-11-16",
+      "sanctioningBody": "USATKD"
     },
     {
       "id": "2027-01-30:usa dream open taekwondo hanmadang festival championships",
@@ -155,7 +156,8 @@
       "longitude": -115.14,
       "category": "Open",
       "source": "https://menloathletics.com/sports/taekwondo/schedule",
-      "checked": "2026-11-16"
+      "checked": "2026-11-16",
+      "sanctioningBody": "USATKD"
     },
     {
       "id": "2027-04-24:texas state taekwondo championships",
@@ -168,7 +170,8 @@
       "longitude": -96.471,
       "category": "State championship",
       "source": "https://www.txtkd.org/official-tsta-events",
-      "checked": "2026-11-16"
+      "checked": "2026-11-16",
+      "sanctioningBody": "USATKD"
     },
     {
       "id": "2027-05-22:world sport elite open taekwondo championship",
@@ -194,7 +197,8 @@
       "longitude": -110.974,
       "category": "Open",
       "source": "https://menloathletics.com/sports/taekwondo/schedule",
-      "checked": "2026-11-16"
+      "checked": "2026-11-16",
+      "sanctioningBody": "USATKD"
     },
     {
       "id": "2027-07-07:usa taekwondo nationals",
@@ -207,7 +211,8 @@
       "longitude": -97.331,
       "category": "National championship",
       "source": "https://menloathletics.com/sports/taekwondo/schedule",
-      "checked": "2026-11-16"
+      "checked": "2026-11-16",
+      "sanctioningBody": "USATKD"
     },
     {
       "id": "2027-09-03:usa taekwondo season final & festival",
@@ -220,7 +225,8 @@
       "longitude": -117.426,
       "category": "Season final",
       "source": "https://www.thepodiumusa.com/events",
-      "checked": "2026-11-16"
+      "checked": "2026-11-16",
+      "sanctioningBody": "USATKD"
     }
   ]
 }

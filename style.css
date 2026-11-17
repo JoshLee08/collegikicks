@@ -312,6 +312,21 @@ input[type="file"]::file-selector-button {
 .training-context .phase .eyebrow { color: var(--accent); }
 .guides details:last-child { border-bottom: 0; }
 
+/* The expanded session uses the same hierarchy as the selected day. */
+.details {
+  --ink: #eab340;
+  --surface-fill: #18334d;
+  --muted: #ffffff;
+  --line: #ffffff55;
+  --control-line: #ffffff88;
+  background: #18334d;
+  color: var(--ink);
+  border-color: #ffffff88;
+}
+.details .club-event-detail { color: var(--gold); }
+.details .detail-content { color: var(--muted); }
+.details :is(h4, label, strong) { color: var(--gold); }
+
 /* Each control reverses its own foreground and background while interacting. */
 button {
   --inverse-fill: var(--navy);
@@ -340,13 +355,12 @@ body button:not(.day):enabled:is(:hover, :focus, :active, [aria-expanded="true"]
   border-color: currentColor;
 }
 a { border-radius: 3px; }
-body a:is(:hover, :focus, :active),
+body a:not(.brand):is(:hover, :focus, :active),
 .top nav a[aria-current="page"] {
   background: var(--ink);
   color: var(--surface-fill);
 }
 .top nav a { padding-inline: 10px; border-radius: var(--radius); }
-.top a:is(:hover, :focus, :active) .mark,
 .top nav a:is(:hover, :focus, :active, [aria-current="page"]) #tournament-count {
   background: var(--navy);
   color: var(--gold);
