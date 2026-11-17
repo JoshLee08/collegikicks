@@ -20,6 +20,7 @@ const requestedDate = requestedWeek && /^\d{4}-\d{2}-\d{2}$/.test(requestedWeek)
 const initialDate = requestedDate && dateKey(requestedDate) === requestedWeek ? requestedDate : new Date();
 let weekStart = monday(initialDate);
 let selectedDay = dayDistance(weekStart, initialDate);
+let dayDetailsOpen = true;
 
 function phaseFor(start, tournament) {
   if (!tournament) return 'base';
@@ -219,7 +220,7 @@ function render(focusDay = false) {
     const date = addDays(weekStart, index);
     const isToday = dateKey(date) === today;
     return `
-    <button type="button" class="day ${day.type}" data-day="${index}" aria-controls="day-detail" aria-pressed="${index === selectedDay}"${isToday ? ' aria-current="date"' : ''}>
+    <button type="button" class="day ${day.type}" data-day="${index}" aria-controls="day-detail" aria-pressed="${dayDetailsOpen && index === selectedDay}" aria-expanded="${dayDetailsOpen && index === selectedDay}"${isToday ? ' aria-current="date"' : ''}>
       <span class="day-top"><time datetime="${dateKey(date)}">${days[index]} ${date.getDate()}</time>${isToday
         ? '<span class="today-label">Today</span>' : ''}</span>
       <strong>${day.title}</strong>
@@ -231,11 +232,14 @@ function render(focusDay = false) {
   }).join('');
   if (focusDay) {
     for (const button of week.querySelectorAll('[data-day]')) {
-      button.setAttribute('aria-pressed', String(Number(button.dataset.day) === selectedDay));
+      const expanded = dayDetailsOpen && Number(button.dataset.day) === selectedDay;
+      button.setAttribute('aria-pressed', String(expanded));
+      button.setAttribute('aria-expanded', String(expanded));
     }
   } else {
     week.innerHTML = dayMarkup;
   }
+  dayDetail.hidden = !dayDetailsOpen;
   placeDayDetail();
   const day = plan[selectedDay];
   const content = Array.isArray(day.content)
@@ -312,13 +316,14 @@ function setWeekOption(field, value) {
 function goToWeek(date) {
   weekStart = monday(date);
   selectedDay = dayDistance(weekStart, date);
+  dayDetailsOpen = true;
   render();
 }
 
 function placeDayDetail() {
   const detail = byId('day-detail');
   const week = byId('week');
-  const selected = week.querySelector('.day[aria-pressed="true"]');
+  const selected = week.querySelector(`[data-day="${selectedDay}"]`);
   if (compactWeek.matches && selected) {
     if (selected.nextElementSibling !== detail) selected.after(detail);
   } else if (week.contains(detail)) {
@@ -344,6 +349,8 @@ function toggleSetup(open, trigger = setupTrigger) {
   setup.hidden = !open;
   editSchedule.setAttribute('aria-expanded', String(open));
   addClasses.setAttribute('aria-expanded', String(open));
+  editSchedule.toggleAttribute('data-resting', !open);
+  addClasses.toggleAttribute('data-resting', !open);
   if (open) {
     setupTrigger = trigger;
     (trigger === addClasses ? byId('schedule-file') : byId('club')).focus();
@@ -365,10 +372,12 @@ byId('next').addEventListener('click', () => goToWeek(addDays(weekStart, 7)));
 byId('today').addEventListener('click', () => goToWeek(new Date()));
 byId('week').addEventListener('click', event => {
   const button = event.target.closest('[data-day]');
-  if (!button || Number(button.dataset.day) === selectedDay) return;
-  selectedDay = Number(button.dataset.day);
+  if (!button) return;
+  const clickedDay = Number(button.dataset.day);
+  dayDetailsOpen = clickedDay === selectedDay ? !dayDetailsOpen : true;
+  selectedDay = clickedDay;
   render(true);
-  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  if (dayDetailsOpen && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     const detail = byId('day-detail');
     for (const animation of detail.getAnimations()) animation.cancel();
     detail.animate(

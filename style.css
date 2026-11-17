@@ -349,7 +349,7 @@ button {
   --inverse-fill: var(--gold);
   --inverse-ink: var(--navy);
 }
-body button:not(.day):enabled:is(:hover, :focus, :active, [aria-expanded="true"]) {
+body button:not(.day):not([data-resting]):enabled:is(:hover, :focus-visible, :active, [aria-expanded="true"], [data-inverted="true"]) {
   background: var(--inverse-fill);
   color: var(--inverse-ink);
   border-color: currentColor;
@@ -378,7 +378,7 @@ input[type="file"]:focus::file-selector-button {
   color: var(--navy);
 }
 summary { padding: 10px; border-radius: var(--radius); }
-summary:is(:hover, :focus, :active), details[open] > summary {
+summary:not([data-resting]):is(:hover, :focus-visible, :active), details[open] > summary {
   background: var(--navy);
   color: var(--gold);
 }
@@ -394,14 +394,17 @@ body :is(button, input, select, textarea, a, summary):focus-visible,
   outline-offset: 3px;
   box-shadow: 0 0 0 1px var(--navy);
 }
-body .day:focus-visible {
-  --ink: #eab340;
-  --muted: #ffffff;
-  background: #18334d;
-  color: var(--ink);
-  border-color: #ffffff;
-}
-.day:focus-visible :is(.day-type, .club-event-tag) { color: #ffffff; }
+/* Focus remains visible when a second click clears the active colors. */
+body .day[data-resting] { background: var(--gold); color: var(--navy); }
+body .day[data-resting] .day-top, body .day[data-resting] .day-time { color: #30445a; }
+body .day[data-resting] .day-type { color: var(--tone); }
+body button[data-resting]:where(:not(.day)) { background: var(--gold); color: var(--navy); }
+body .primary[data-resting] { background: var(--navy); color: var(--gold); }
+body .week-controls .primary[data-resting] { background: var(--gold); color: var(--navy); }
+body .week-nav button[data-resting] { background: transparent; color: #ffffff; border-color: #ffffff66; }
+body .text-button[data-resting] { background: transparent; color: var(--ink); border-color: transparent; }
+summary[data-resting] { background: transparent; color: inherit; }
+
 
 @media (max-width: 950px) {
   .shell { width: calc(100% - 40px); }
@@ -456,19 +459,19 @@ body .day:focus-visible {
 /* Animate state changes in both directions without moving surrounding controls. */
 :where(button, a, input, select, textarea, summary, .scope label, .mark, #tournament-count, .day *) {
   transition:
-    background-color 180ms ease,
-    color 180ms ease,
-    border-color 180ms ease,
-    box-shadow 180ms ease,
-    outline-color 180ms ease,
-    opacity 180ms ease,
-    transform 140ms ease;
+    background-color 240ms ease-in-out,
+    color 240ms ease-in-out,
+    border-color 240ms ease-in-out,
+    box-shadow 240ms ease-in-out,
+    outline-color 240ms ease-in-out,
+    opacity 240ms ease-in-out,
+    transform 180ms ease-out;
 }
 button:enabled:active, summary:active { transform: translateY(1px); }
 input[type="file"]::file-selector-button {
-  transition: background-color 180ms ease, color 180ms ease;
+  transition: background-color 240ms ease-in-out, color 240ms ease-in-out;
 }
-#schedule-setup, #practice-log, #chat-apply {
+#schedule-setup, #practice-log, #chat-apply, #day-detail {
   opacity: 1;
   transform: translateY(0);
   transition:
@@ -476,12 +479,12 @@ input[type="file"]::file-selector-button {
     transform 200ms ease,
     display 200ms allow-discrete;
 }
-:is(#schedule-setup, #practice-log, #chat-apply)[hidden] {
+:is(#schedule-setup, #practice-log, #chat-apply, #day-detail)[hidden] {
   opacity: 0;
   transform: translateY(-4px);
 }
 @starting-style {
-  #schedule-setup:not([hidden]), #practice-log:not([hidden]), #chat-apply:not([hidden]) {
+  #schedule-setup:not([hidden]), #practice-log:not([hidden]), #chat-apply:not([hidden]), #day-detail:not([hidden]) {
     opacity: 0;
     transform: translateY(-4px);
   }
@@ -495,7 +498,7 @@ input[type="file"]::file-selector-button {
     overflow: clip;
     transition:
       block-size 220ms ease,
-      opacity 180ms ease,
+      opacity 240ms ease-in-out,
       content-visibility 220ms allow-discrete;
   }
   details[open]::details-content {
