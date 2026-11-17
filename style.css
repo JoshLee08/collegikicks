@@ -49,6 +49,15 @@
 .detail-content .club-event-detail{margin-top:10px;color:#75520d;font-size:13px}
 .top nav{display:flex;gap:22px;align-items:center}.top nav>a{text-decoration:none;font-size:13px}.top nav>a:hover{text-decoration:underline}#tournament-count{background:var(--orange);color:#10253d;padding:2px 6px;border-radius:12px}.setting p{margin:4px 0;font-size:13px}.setting>a{font-size:12px;color:var(--red)}.tournaments{margin-top:32px;scroll-margin-top:20px}.tournaments>p,.tournaments aside>p{color:var(--muted);font-size:13px}.tournament-layout{display:grid;grid-template-columns:1.5fr 1fr;gap:22px}.tournament-layout aside{background:#e5edf6;border-radius:12px;padding:18px;align-self:start}.tournament-layout h3{margin:0;font:700 28px var(--display)}.tournament-layout label{display:block;font-size:13px;font-weight:700}.tournament-layout input{width:100%;padding:12px;border:1px solid var(--line);border-radius:8px;margin:6px 0 12px;background:var(--white)}.tournament-list{display:grid;gap:12px}.tournament-card{padding:18px;background:var(--white);border:1px solid var(--line);border-radius:10px}.tournament-card h4{margin:0;font-size:17px}.tournament-card p{font-size:13px;color:var(--muted);margin:8px 0}.tournament-card a,.tournament-card small{display:block;font-size:12px;margin:6px 0}.tournaments button{min-height:40px;border:1px solid var(--line);border-radius:7px;padding:8px 12px;background:#10253d;color:white;font-weight:600}.tournament-card button{margin:8px 8px 0 0}.tournament-card button[aria-pressed=true]{background:#e5edf6;color:#10253d}.tournaments button:disabled{opacity:.6;cursor:wait}#tournament-status{min-height:20px}@media(max-width:720px){.tournament-layout{grid-template-columns:1fr}.tournament-layout aside{grid-row:1}.top-inner{height:auto;min-height:62px;flex-wrap:wrap;gap:12px;padding-block:12px}.top nav{gap:14px;flex-wrap:wrap}.tournaments .week-heading{align-items:start;flex-wrap:wrap}}
 
+/* Keep anchor targets and keyboard-focused controls below the sticky navigation. */
+html{scroll-padding-top:calc(var(--navigation-height,62px) + 16px)}
+@media(max-width:720px){html{--navigation-height:110px}}
+
 .tournament-filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:12px}
 .tournament-filters select{display:block;width:100%;margin-top:4px;min-height:40px;padding:6px;border:1px solid var(--line);border-radius:7px;background:var(--white);font:inherit;color:inherit}
 #tournament-location-status,#tournament-result-count{font-size:13px;color:var(--muted);margin:8px 0}
+
+.top-slot{height:var(--navigation-height,62px)}
+.top-floating{position:fixed;inset:0 0 auto;z-index:100;box-shadow:0 2px 10px #10253d40}
+.top nav>a[aria-current=page]{text-decoration:underline;text-underline-offset:5px}
+.tournaments .week-heading h1{margin:0;font:800 clamp(32px,5vw,48px)/1 var(--display);text-transform:uppercase}

@@ -106,19 +106,14 @@ function eventCard(event, selected) {
       settings.tournaments = [...(settings.tournaments || []).filter(item => item.id !== event.id), event];
     }
     saveSettings();
-    render();
+    renderTournaments();
     byId('tournament-status').textContent = `${event.title} ${selected ? 'removed from' : 'added to'} your schedule.`;
   });
   card.append(button);
   if (selected) {
-    const view = document.createElement('button');
-    view.type = 'button';
+    const view = document.createElement('a');
+    view.href = `./?week=${encodeURIComponent(event.start)}#week-title`;
     view.textContent = 'View week →';
-    view.addEventListener('click', () => {
-      goToWeek(new Date(event.start + 'T12:00:00'));
-      refreshScheduleEditor();
-      document.querySelector('.schedule').scrollIntoView({ behavior: 'smooth' });
-    });
     card.append(view);
   }
   return card;
@@ -126,9 +121,7 @@ function eventCard(event, selected) {
 
 function renderTournaments() {
   const selected = selectedTournaments(settings);
-  const upcoming = selected.filter(event => event.end >= dateKey(new Date()));
-  byId('tournament-count').textContent = upcoming.length;
-  byId('tournament-summary').textContent = upcoming.length ? `${upcoming.length} upcoming · ${upcoming[0].title}` : 'No upcoming tournaments selected';
+  renderTournamentSummary();
   const mine = byId('my-tournaments');
   mine.replaceChildren(...selected.map(event => eventCard(event, true)));
   if (!selected.length) mine.textContent = 'Your season starts here. Use + Add to choose tournaments.';
@@ -227,5 +220,10 @@ for (const id of ['tournament-state', 'tournament-type', 'tournament-sort', 'tou
 byId('tournament-nearby').addEventListener('click', useTournamentLocation);
 byId('tournament-search').addEventListener('input', renderTournaments);
 byId('refresh-tournaments').addEventListener('click', loadTournaments);
+window.addEventListener('pageshow', event => {
+  if (!event.persisted) return;
+  Object.assign(settings, readSettings());
+  renderTournaments();
+});
 renderTournaments();
 loadTournaments();

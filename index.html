@@ -10,20 +10,21 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<script src="navigation.js" defer></script>
 <script src="schedule.js" defer></script>
+<script src="planner-state.js" defer></script>
 <script src="planner.js" defer></script>
 <script src="schedule-ui.js" defer></script>
 <script src="chat.js" defer></script>
-<script src="tournaments.js" defer></script>
 </head>
 <body>
-<header class="top"><div class="shell top-inner"><a class="brand" href="./"><span class="mark" aria-hidden="true">∕∕</span> KYORUGI</a><nav aria-label="Main navigation"><a href="#planner">Planner</a><a href="#tournaments">Tournaments <span id="tournament-count">0</span></a><a class="top-link" href="#sources">Training sources <span aria-hidden="true">↗</span></a></nav></div></header>
+<div class="top-slot"><header class="top"><div class="shell top-inner"><a class="brand" href="./"><span class="mark" aria-hidden="true">∕∕</span> KYORUGI</a><nav aria-label="Main navigation"><a href="./" aria-current="page">Planner</a><a href="tournaments.html">Tournaments <span id="tournament-count">0</span></a><a class="top-link" href="#sources">Training sources <span aria-hidden="true">↗</span></a></nav></div></header></div>
 <main class="shell" id="planner">
 <section class="hero" aria-labelledby="title">
   <div class="hero-copy"><p class="kicker"><span></span> COLLEGIATE TAEKWONDO</p><h1 id="title">Sparring<br>Training Planner</h1><p>Plan strength and conditioning around your classes, team practices, and tournament day.</p></div>
 </section>
 <section class="settings" aria-label="Training settings">
-  <div class="setting"><strong>My tournaments</strong><p id="tournament-summary">No tournaments selected</p><a href="#tournaments">Find upcoming tournaments →</a></div>
+  <div class="setting"><strong>My tournaments</strong><p id="tournament-summary">No tournaments selected</p><a href="tournaments.html">Find upcoming tournaments →</a></div>
   <div class="setting"><label for="course">Course load this week</label><select id="course"><option value="normal">Regular week</option><option value="high">High coursework</option></select></div>
   <div class="phase" role="status"><span>TRAINING PHASE</span><strong id="phase"></strong><small id="countdown"></small></div>
 </section>
@@ -76,7 +77,7 @@
 </section>
 <section class="schedule" aria-labelledby="week-title">
   <div class="week-heading"><div><p class="eyebrow">WEEKLY SCHEDULE</p><h2 id="week-title"></h2></div><div class="week-nav"><button id="previous" aria-label="Previous week">←</button><button id="today">This week</button><button id="next" aria-label="Next week">→</button></div></div>
-  <p class="week-note">Select a day for workouts, commitments, and published competitions. Add tournaments below to reserve competition days and adapt your training.</p>
+  <p class="week-note">Select a day for workouts, commitments, and published competitions. Add tournaments from the Tournaments page to reserve competition days and adapt your training.</p>
   <div class="summary"><span><i class="practice"></i><strong id="practice-count"></strong></span><span><i class="extra"></i><strong id="minutes"></strong> extra training</span><span><i class="rest"></i><strong id="rest-days"></strong> rest days</span></div>
   <div id="week" class="week" aria-label="Choose a day to see workout details"></div>
   <article class="details" aria-labelledby="detail-title">
@@ -96,26 +97,6 @@
       </div>
     </div>
   </article>
-</section>
-<section id="tournaments" class="tournaments" aria-labelledby="tournaments-title">
-  <div class="week-heading"><div><p class="eyebrow">PLAN YOUR COMPETITION SEASON</p><h2 id="tournaments-title">Upcoming tournaments</h2></div><button type="button" id="refresh-tournaments">Refresh events</button></div>
-  <p>Discover published competitions and add them to your schedule. Adding an event marks your plan to attend; complete registration with the organizer separately.</p>
-  <p id="tournament-status" role="status">Loading tournaments…</p>
-  <div class="tournament-layout"><div>
-    <label for="tournament-search">Search by tournament or location</label>
-    <input id="tournament-search" type="search" placeholder="Search tournaments…">
-    <div class="tournament-filters" aria-label="Tournament filters" role="group">
-      <label>State <select id="tournament-state"><option value="">All states</option></select></label>
-      <label>Event type <select id="tournament-type"><option value="">All types</option><option>Collegiate</option><option>Open</option><option>State championship</option><option>Regional</option><option>National championship</option><option>Team trials</option><option>Season final</option><option>Other</option></select></label>
-      <label>Sort by <select id="tournament-sort"><option value="soonest">Date: soonest first</option><option value="latest">Date: latest first</option><option value="college">Collegiate first</option><option value="distance" disabled>Distance: nearest first</option></select></label>
-      <label>Distance <select id="tournament-radius" disabled><option value="">Any distance</option><option value="50">Within 50 miles</option><option value="100">Within 100 miles</option><option value="250">Within 250 miles</option><option value="500">Within 500 miles</option></select></label>
-    </div>
-    <button type="button" id="tournament-nearby">Use my location</button>
-    <p id="tournament-location-status" role="status"></p>
-    <p id="tournament-result-count" role="status"></p>
-    <div id="tournament-results" class="tournament-list"></div>
-  </div>
-  <aside aria-labelledby="my-tournaments-title"><h3 id="my-tournaments-title">My tournaments</h3><p>Saved in this browser · planned attendance</p><div id="my-tournaments" class="tournament-list"></div></aside></div>
 </section>
 <section class="chat" aria-labelledby="chat-title">
   <p class="eyebrow">SCHEDULE ASSISTANT</p>

@@ -1,14 +1,6 @@
-const storageKey = 'kyorugi-planner-v1';
 const dateFormatter = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' });
 const longFormatter = new Intl.DateTimeFormat('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-const byId = id => document.getElementById(id);
-const pad = number => String(number).padStart(2, '0');
-
-function dateKey(date) {
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
-}
-
 function addDays(date, count) {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate() + count, 12);
 }
@@ -22,23 +14,11 @@ function dayDistance(start, end) {
   return Math.round((utc(end) - utc(start)) / 86400000);
 }
 
-function readSettings() {
-  try {
-    const saved = JSON.parse(localStorage.getItem(storageKey));
-    if (saved && typeof saved === 'object') {
-      return { tournaments: Array.isArray(saved.tournaments) ? saved.tournaments.filter(validTournament) : [], tournament: saved.tournament || '', weeks: saved.weeks || {}, club: saved.club || 'berkeley', teams: saved.teams || {}, commitments: saved.commitments };
-    }
-  } catch {}
-  return { tournament: '', weeks: {}, club: 'berkeley', teams: {} };
-}
-
-const settings = readSettings();
-let weekStart = monday(new Date());
+const requestedWeek = new URLSearchParams(window.location.search).get('week');
+const requestedDate = requestedWeek && /^\d{4}-\d{2}-\d{2}$/.test(requestedWeek)
+  ? new Date(requestedWeek + 'T12:00:00') : null;
+let weekStart = monday(requestedDate && dateKey(requestedDate) === requestedWeek ? requestedDate : new Date());
 let selectedDay = 0;
-
-function saveSettings() {
-  try { localStorage.setItem(storageKey, JSON.stringify(settings)); } catch {}
-}
 
 function phaseFor(start, tournament) {
   if (!tournament) return 'base';
@@ -203,7 +183,7 @@ function render(focusDay = false) {
     ? `${dateFormatter.format(weekStart)}–${end.getDate()}`
     : `${dateFormatter.format(weekStart)} – ${dateFormatter.format(end)}`;
   byId('week-title').textContent = `${weekLabel}, ${end.getFullYear()}`;
-  if (typeof renderTournaments === 'function') renderTournaments();
+  renderTournamentSummary();
   byId('course').value = weekSettings.course || 'normal';
   byId('phase').textContent = { base: 'Build your base', build: 'Competition build', event: 'Tournament week', after: 'Back to base' }[phase];
   const distance = tournament ? dayDistance(new Date(), tournament) : null;
@@ -317,5 +297,12 @@ byId('week').addEventListener('click', event => {
   selectedDay = Number(button.dataset.day);
   render(true);
 });
+window.addEventListener('pageshow', event => {
+  if (!event.persisted) return;
+  Object.assign(settings, readSettings());
+  render();
+  refreshScheduleEditor();
+});
+if (window.location.hash === '#sources') byId('sources').open = true;
 document.querySelector('.top-link').addEventListener('click', () => { byId('sources').open = true; });
 render();
