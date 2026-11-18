@@ -2,6 +2,8 @@
 const tournamentApiOrigin = 'https://kyorugi-weekly-planner-api.onrender.com';
 let tournamentCatalog = [];
 let tournamentLocation = null;
+const tournamentsPerPage = 10;
+let tournamentPage = 0;
 const tournamentStates = {
   AL: 'Alabama', AK: 'Alaska', AZ: 'Arizona', AR: 'Arkansas', CA: 'California',
   CO: 'Colorado', CT: 'Connecticut', DE: 'Delaware', DC: 'District of Columbia',
@@ -53,7 +55,7 @@ function setTournamentLocation(location, status) {
   byId('tournament-nearby').textContent = location ? 'Clear my location' : 'Use my location';
   byId('tournament-nearby').disabled = false;
   byId('tournament-location-status').textContent = status;
-  renderTournaments();
+  resetTournamentPage();
 }
 
 function useTournamentLocation() {
@@ -72,17 +74,20 @@ const tournamentDateFormat = new Intl.DateTimeFormat('en-US', { month: 'short', 
 
 function eventCard(event, selected, savedList = false) {
   const card = document.createElement('article');
+  const info = document.createElement('div');
+  info.className = 'tournament-card-info';
+  card.append(info);
   card.className = 'tournament-card';
   const date = document.createElement('p');
   date.className = 'tournament-date';
   const start = new Date(event.start + 'T12:00:00');
   date.textContent = event.start === event.end ? tournamentDateFormat.format(start)
     : tournamentDateFormat.formatRange(start, new Date(event.end + 'T12:00:00'));
-  const title = document.createElement(savedList ? 'h3' : 'h2');
+  const title = document.createElement('h3');
   title.textContent = event.title;
   const location = document.createElement('p');
   location.textContent = event.location || 'Location to be confirmed';
-  card.append(date, title, location);
+  info.append(date, title, location);
 
   const miles = tournamentMiles(event);
   const tags = [tournamentType(event), event.tentative && 'Tentative date', Number.isFinite(miles) && `About ${Math.round(miles)} mi away`].filter(Boolean);
@@ -90,13 +95,13 @@ function eventCard(event, selected, savedList = false) {
     const metadata = document.createElement('p');
     metadata.className = 'tournament-meta';
     metadata.textContent = tags.join(' · ');
-    card.append(metadata);
+    info.append(metadata);
   }
   if (selected && selectedTournaments(settings).some(other => other.id !== event.id && other.start <= event.end && other.end >= event.start)) {
     const conflict = document.createElement('p');
     conflict.className = 'tournament-conflict';
     conflict.textContent = 'Overlaps another selected tournament';
-    card.append(conflict);
+    info.append(conflict);
   }
 
   const actions = document.createElement('div');
@@ -152,7 +157,6 @@ function eventCard(event, selected, savedList = false) {
 function renderTournaments() {
   const selected = selectedTournaments(settings);
   renderTournamentSummary();
-  byId('jump-to-saved').hidden = !selected.length;
   const mine = byId('my-tournaments');
   mine.replaceChildren(...selected.map(event => eventCard(event, true, true)));
   if (!selected.length) mine.textContent = 'No tournaments in your plan. Add one from the results.';
@@ -171,9 +175,21 @@ function renderTournaments() {
     if (sort === 'latest') return b.start.localeCompare(a.start) || a.title.localeCompare(b.title);
     return byDate(a, b);
   });
-  byId('tournament-result-count').textContent = `${matches.length} ${matches.length === 1 ? 'tournament' : 'tournaments'}`;
+  const pageCount = Math.ceil(matches.length / tournamentsPerPage);
+  tournamentPage = Math.min(tournamentPage, Math.max(0, pageCount - 1));
+  const first = tournamentPage * tournamentsPerPage;
+  const pageEvents = matches.slice(first, first + tournamentsPerPage);
+  byId('tournament-result-count').textContent = matches.length
+    ? `${first + 1}–${first + pageEvents.length} of ${matches.length} ${matches.length === 1 ? 'tournament' : 'tournaments'}`
+    : '0 tournaments';
+  for (const pagination of document.querySelectorAll('.tournament-pagination')) {
+    pagination.hidden = !matches.length;
+    pagination.querySelector('[data-page-status]').textContent = `Page ${tournamentPage + 1} of ${pageCount}`;
+    pagination.querySelector('[data-page-direction="-1"]').disabled = tournamentPage === 0;
+    pagination.querySelector('[data-page-direction="1"]').disabled = tournamentPage + 1 >= pageCount;
+  }
   const results = byId('tournament-results');
-  results.replaceChildren(...matches.map(event => eventCard(event, selected.some(item => item.id === event.id))));
+  results.replaceChildren(...pageEvents.map(event => eventCard(event, selected.some(item => item.id === event.id))));
   if (!matches.length) {
     const filtered = query || state || category || radius;
     const empty = document.createElement('div');
@@ -187,7 +203,7 @@ function renderTournaments() {
       clear.textContent = 'Clear filters';
       clear.addEventListener('click', () => {
         for (const id of ['tournament-search', 'tournament-state', 'tournament-type', 'tournament-radius']) byId(id).value = '';
-        renderTournaments();
+        resetTournamentPage();
         byId('tournament-search').focus();
       });
       empty.append(clear);
@@ -257,14 +273,43 @@ async function loadTournaments() {
     renderTournaments();
   }
 }
+function resetTournamentPage() {
+  tournamentPage = 0;
+  renderTournaments();
+}
+
+for (const button of document.querySelectorAll('[data-page-direction]')) {
+  button.addEventListener('click', () => {
+    tournamentPage += Number(button.dataset.pageDirection);
+    renderTournaments();
+    const heading = byId('available-tournaments-title');
+    heading.focus({ preventScroll: true });
+    heading.scrollIntoView({
+      block: 'start',
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'
+    });
+  });
+}
+for (const button of document.querySelectorAll('[data-tournament-view]')) {
+  button.addEventListener('click', () => {
+    const view = button.dataset.tournamentView;
+    byId('tournament-results').classList.toggle('compact', view === 'compact');
+    for (const option of document.querySelectorAll('[data-tournament-view]')) {
+      const selected = option.dataset.tournamentView === view;
+      option.setAttribute('aria-pressed', String(selected));
+      option.toggleAttribute('data-resting', !selected);
+    }
+  });
+}
+
 for (const [code, name] of Object.entries(tournamentStates).sort((a, b) => a[1].localeCompare(b[1]))) {
   byId('tournament-state').add(new Option(name, code));
 }
 for (const id of ['tournament-state', 'tournament-type', 'tournament-sort', 'tournament-radius']) {
-  byId(id).addEventListener('change', renderTournaments);
+  byId(id).addEventListener('change', resetTournamentPage);
 }
 byId('tournament-nearby').addEventListener('click', useTournamentLocation);
-byId('tournament-search').addEventListener('input', renderTournaments);
+byId('tournament-search').addEventListener('input', resetTournamentPage);
 byId('refresh-tournaments').addEventListener('click', loadTournaments);
 window.addEventListener('pageshow', event => {
   if (!event.persisted) return;

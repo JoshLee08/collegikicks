@@ -8,11 +8,11 @@
 <title>Tournaments | Kyorugi</title>
 <link rel="preconnect" href="https://use.typekit.net" crossorigin>
 <link rel="stylesheet" href="https://use.typekit.net/bba3xnz.css">
-<link rel="stylesheet" href="style.css?v=toggle-details">
-<script src="navigation.js?v=toggle-details" defer></script>
+<link rel="stylesheet" href="style.css?v=tournament-browser">
+<script src="navigation.js?v=tournament-browser" defer></script>
 <script src="schedule.js" defer></script>
 <script src="planner-state.js" defer></script>
-<script src="tournaments.js?v=standard-filters" defer></script>
+<script src="tournaments.js?v=paged-tournaments" defer></script>
 </head>
 <body>
 <div class="top-slot"><header class="top"><div class="shell top-inner"><a class="brand" href="./"><span class="mark" aria-hidden="true">∕∕</span> KYORUGI</a><nav aria-label="Main navigation"><a href="./">Planner</a><a href="tournaments.html" aria-current="page">Tournaments <span id="tournament-count">0</span></a></nav></div></header></div>
@@ -25,27 +25,48 @@
     <button class="text-button" type="button" id="refresh-tournaments">Refresh events</button>
   </div>
   <div class="tournament-layout">
-    <div class="tournament-discovery">
-      <label for="tournament-search">Search by tournament or location</label>
-      <input id="tournament-search" type="search" placeholder="Search tournaments…">
-      <div class="tournament-filters" aria-label="Tournament filters" role="group">
-        <label>State <select id="tournament-state"><option value="">All states</option></select></label>
-        <label>Event type <select id="tournament-type"><option value="">All types</option><option>Collegiate</option><option>Open</option><option>National pathway</option></select></label>
-        <label>Date <select id="tournament-sort"><option value="soonest">Earliest</option><option value="latest">Latest</option></select></label>
-        <label>Distance <select id="tournament-radius" disabled><option value="">Any distance</option><option value="50">Within 50 miles</option><option value="100">Within 100 miles</option><option value="250">Within 250 miles</option><option value="500">Within 500 miles</option></select></label>
-      </div>
-      <div class="tournament-tools">
-        <button type="button" id="tournament-nearby">Use my location</button>
-        <a id="jump-to-saved" href="#my-tournaments-title" hidden>Go to my tournaments ↓</a>
-      </div>
-      <p id="tournament-location-status" role="status"></p>
-      <p id="tournament-result-count" role="status"></p>
-      <div id="tournament-results" class="tournament-list"></div>
-    </div>
-    <aside aria-labelledby="my-tournaments-title">
-      <h2 id="my-tournaments-title" tabindex="-1">My tournaments</h2>
-      <div id="my-tournaments" class="tournament-list"></div>
+    <aside class="tournament-sidebar" aria-label="My tournaments and filters">
+      <section aria-labelledby="my-tournaments-title">
+        <h2 id="my-tournaments-title" tabindex="-1">My tournaments</h2>
+        <div id="my-tournaments" class="tournament-list"></div>
+      </section>
+      <section class="tournament-filter-panel" aria-labelledby="filters-title">
+        <h2 id="filters-title">Filters</h2>
+        <label for="tournament-search">Search by tournament or location</label>
+        <input id="tournament-search" type="search" placeholder="Search tournaments…">
+        <div class="tournament-filters" aria-label="Tournament filters" role="group">
+          <label>State <select id="tournament-state"><option value="">All states</option></select></label>
+          <label>Event type <select id="tournament-type"><option value="">All types</option><option>Collegiate</option><option>Open</option><option>National pathway</option></select></label>
+          <label>Date <select id="tournament-sort"><option value="soonest">Earliest</option><option value="latest">Latest</option></select></label>
+          <label>Distance <select id="tournament-radius" disabled><option value="">Any distance</option><option value="50">Within 50 miles</option><option value="100">Within 100 miles</option><option value="250">Within 250 miles</option><option value="500">Within 500 miles</option></select></label>
+        </div>
+        <div class="tournament-tools">
+          <button type="button" id="tournament-nearby">Use my location</button>
+        </div>
+        <p id="tournament-location-status" role="status"></p>
+      </section>
     </aside>
+    <section class="tournament-discovery" aria-labelledby="available-tournaments-title">
+      <div class="tournament-browse-heading">
+        <h2 id="available-tournaments-title" tabindex="-1">Available tournaments</h2>
+        <div class="tournament-view-switch" role="group" aria-label="Tournament view">
+          <button type="button" data-tournament-view="expanded" aria-pressed="true" aria-controls="tournament-results">Expanded</button>
+          <button type="button" data-tournament-view="compact" aria-pressed="false" aria-controls="tournament-results">Compact</button>
+        </div>
+      </div>
+      <p id="tournament-result-count" role="status"></p>
+      <nav class="tournament-pagination" aria-label="Tournament pages" hidden>
+        <button type="button" data-page-direction="-1" aria-label="Previous tournament page">← Previous</button>
+        <span data-page-status></span>
+        <button type="button" data-page-direction="1" aria-label="Next tournament page">Next →</button>
+      </nav>
+      <div id="tournament-results" class="tournament-list"></div>
+      <nav class="tournament-pagination" aria-label="Tournament pages at end of results" hidden>
+        <button type="button" data-page-direction="-1" aria-label="Previous tournament page">← Previous</button>
+        <span data-page-status></span>
+        <button type="button" data-page-direction="1" aria-label="Next tournament page">Next →</button>
+      </nav>
+    </section>
   </div>
 </section>
 <section class="guides" aria-label="Training guidance">

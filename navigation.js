@@ -36,6 +36,11 @@ document.addEventListener('click', event => {
     control.toggleAttribute('data-resting', expanded === 'false');
     return;
   }
+  const pressed = control.getAttribute('aria-pressed');
+  if (pressed !== null) {
+    control.toggleAttribute('data-resting', pressed === 'false');
+    return;
+  }
   const inverted = control.dataset.inverted !== 'true';
   control.dataset.inverted = String(inverted);
   control.toggleAttribute('data-resting', !inverted);
