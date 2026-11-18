@@ -1,5 +1,7 @@
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
-const source=['schedule.js','planner-state.js','training.js','planner-core.js'].map(f=>fs.readFileSync(f,'utf8')).join('\n');
+const path=require('node:path');
+const plannerRoot=path.resolve(__dirname,'../assets/js/planner');
+const source=['schedule.js','planner-state.js','training.js','planner-core.js'].map(f=>fs.readFileSync(path.join(plannerRoot,f),'utf8')).join('\n');
 const context=vm.createContext({console,Intl,Date,URLSearchParams,structuredClone,window:{location:{search:''}},document:{},localStorage:{getItem:()=>null},assert});
 vm.runInContext(source+`
 const start=new Date('2026-11-09T12:00:00');

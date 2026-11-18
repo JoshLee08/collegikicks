@@ -108,7 +108,7 @@ button:disabled { opacity: .65; cursor: default; }
   position: absolute;
   inset: 0 0 0 28%;
   background: linear-gradient(90deg, #171614 1%, rgba(23, 22, 20, .5) 31%, transparent 58%),
-    url("sparring.jpg") center 44% / cover no-repeat;
+    url("../images/sparring.jpg") center 44% / cover no-repeat;
 }
 .hero-copy { position: relative; padding: 34px 43px; }
 .hero h1 {
