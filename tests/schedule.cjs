@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const path = require('node:path');
 const root = path.resolve(__dirname, '..');
 // Exercise the production scheduling and proposal functions without a browser.
-const source = fs.readFileSync(path.join(root, 'schedule.js'), 'utf8') + fs.readFileSync(path.join(root, 'planner-state.js'), 'utf8') + fs.readFileSync(path.join(root, 'planner.js'), 'utf8').split("byId('course').addEventListener")[0]
+const source = fs.readFileSync(path.join(root, 'schedule.js'), 'utf8') + fs.readFileSync(path.join(root, 'planner-state.js'), 'utf8') + fs.readFileSync(path.join(root, 'planner-core.js'), 'utf8') + fs.readFileSync(path.join(root, 'planner.js'), 'utf8').split("byId('course').addEventListener")[0]
   + fs.readFileSync(path.join(root, 'chat.js'), 'utf8').split("const chatMessage =")[0];
 const calendarFeed = JSON.parse(fs.readFileSync(path.join(root, 'club-calendar.json'), 'utf8'));
 const context = vm.createContext({ calendarFeed, Intl, Date, structuredClone, document: {}, window: { location: { search: '' } }, URLSearchParams, localStorage: { getItem: () => null }, assert });

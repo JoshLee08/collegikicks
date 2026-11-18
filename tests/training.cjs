@@ -1,0 +1,22 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const source=['schedule.js','planner-state.js','training.js','planner-core.js'].map(f=>fs.readFileSync(f,'utf8')).join('\n');
+const context=vm.createContext({console,Intl,Date,URLSearchParams,structuredClone,window:{location:{search:''}},document:{},localStorage:{getItem:()=>null},assert});
+vm.runInContext(source+`
+const start=new Date('2026-11-09T12:00:00');
+const base={club:'custom',weeks:{},teams:{},tournaments:[],profile:{onboardingComplete:true,discipline:'Recognized poomsae',sessions:2,duration:20,days:weekdayNames}};
+const plan=planForWeek(start,base).plan;
+assert.equal(plan.filter(d=>d.type==='extra').length,2);
+assert.ok(plan.filter(d=>d.type==='extra').every(d=>d.title.includes('poomsae')&&d.minutes[1]<=20));
+assert.equal(planForWeek(start,{...base,profile:{...base.profile,sessions:0}}).plan.filter(d=>d.type==='extra').length,0);
+assert.equal(planForWeek(start,{...base,profile:{...base.profile,days:[]}}).plan.filter(d=>d.type==='extra').length,0);
+const mixed={...base,profile:{...base.profile,discipline:'Both',sessions:1,priority:'Balanced'}};
+assert.notEqual(planForWeek(start,mixed).plan.find(d=>d.type==='extra').discipline,planForWeek(addDays(start,7),mixed).plan.find(d=>d.type==='extra').discipline);
+const full=weekdayNames.map((_,day)=>({day,start:0,end:1440}));
+assert.equal(planForWeek(start,{...base,commitments:full}).plan.filter(d=>d.type==='extra').length,0);
+assert.equal(teamBlocks(base,start).length,0);
+const high={...base,weeks:{'2026-11-09':{course:'high'}}};
+assert.ok(planForWeek(start,high).plan.filter(d=>d.type==='extra').length<=1);
+const events={...base,tournaments:[{id:'event',title:'Event',start:'2026-11-14',end:'2026-11-15'}]};
+assert.equal(planForWeek(start,events).plan.filter(d=>d.type==='event').length,2);
+`,context);
+console.log('Personalized discipline, availability, coursework, custom-school and tournament checks passed.');

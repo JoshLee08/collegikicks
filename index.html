@@ -3,26 +3,26 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="An Olympic-style sparring planner for collegiate Taekwondo athletes.">
+<meta name="description" content="Collegikicks helps collegiate Taekwondo athletes plan sparring and recognized poomsae training around classes, team practices, and tournaments.">
 <meta name="theme-color" content="#10253d">
-<title>Kyorugi | Collegiate Taekwondo Planner</title>
+<title>Collegikicks | Collegiate Taekwondo Planner</title>
 <link rel="preconnect" href="https://use.typekit.net" crossorigin>
 <link rel="stylesheet" href="https://use.typekit.net/bba3xnz.css">
-<link rel="stylesheet" href="style.css?v=tournament-browser">
-<script src="navigation.js?v=tournament-browser" defer></script>
-<script src="schedule.js" defer></script>
-<script src="planner-state.js" defer></script>
-<script src="planner.js?v=toggle-details" defer></script>
-<script src="schedule-ui.js" defer></script>
-<script src="chat.js" defer></script>
-</head>
+<link rel="stylesheet" href="style.css?v=collegikicks-accounts-1">
+<script src="navigation.js?v=collegikicks-accounts-1" defer></script>
+<script src="schedule.js?v=collegikicks-accounts-1" defer></script>
+<script src="planner-state.js?v=collegikicks-accounts-1" defer></script>
+<script src="training.js?v=collegikicks-accounts-1" defer></script><script src="planner-core.js?v=collegikicks-accounts-1" defer></script><script src="planner.js?v=collegikicks-accounts-1" defer></script>
+<script src="schedule-ui.js?v=collegikicks-accounts-1" defer></script>
+<script src="chat.js?v=collegikicks-accounts-1" defer></script>
+<script src="account-config.js?v=collegikicks-accounts-1" defer></script><script src="account-service.js?v=collegikicks-accounts-1" defer></script><script src="account-planner.js?v=collegikicks-accounts-1" defer></script></head>
 <body>
-<div class="top-slot"><header class="top"><div class="shell top-inner"><a class="brand" href="./"><span class="mark" aria-hidden="true">∕∕</span> KYORUGI</a><nav aria-label="Main navigation"><a href="./" aria-current="page">Planner</a><a href="tournaments.html">Tournaments <span id="tournament-count">0</span></a></nav></div></header></div>
+<div class="top-slot"><header class="top"><div class="shell top-inner"><a class="brand" href="./"><span class="mark" aria-hidden="true">∕∕</span> COLLEGIKICKS</a><nav aria-label="Main navigation"><a href="./" aria-current="page">Planner</a><a href="tournaments.html">Tournaments <span id="tournament-count">0</span></a><a class="profile-link" href="profile.html" aria-label="Profile and account" title="Profile and account"><svg viewBox="0 0 32 32" width="30" height="30" fill="none" aria-hidden="true" focusable="false"><circle cx="16" cy="16" r="14" stroke="currentColor" stroke-width="2"/><circle cx="16" cy="12" r="5" fill="currentColor"/><path d="M6.5 25.5C7.2 20.8 10.8 18 16 18s8.8 2.8 9.5 7.5A13 13 0 0 1 16 29a13 13 0 0 1-9.5-3.5Z" fill="currentColor"/></svg></a></nav></div></header></div>
 <main class="shell" id="planner">
 <section class="hero" aria-labelledby="title">
   <div class="hero-copy">
     <p class="kicker"><span aria-hidden="true"></span>Collegiate Taekwondo</p>
-    <h1 id="title">Sparring<br>Training Planner</h1>
+    <h1 id="title">Taekwondo<br>Training Planner</h1>
     <p>Plan strength and conditioning around your classes, team practices, and tournament day.</p>
   </div>
 </section>
@@ -55,7 +55,7 @@
       <div class="setup-panel">
         <label for="club">Collegiate Taekwondo club</label>
         <select id="club">
-          <option value="berkeley">UC Berkeley Taekwondo</option>
+          <option value="custom">Other / independent / add later</option><option value="berkeley">UC Berkeley Taekwondo</option>
           <option value="fresno">Fresno State Taekwondo</option>
           <option value="menlo">Menlo College Taekwondo</option>
           <option value="usc">USC Taekwondo</option>
@@ -146,7 +146,7 @@
 <section class="guides" aria-label="Training guidance">
 <details id="sources"><summary>Training sources</summary><p>The sessions adapt ideas from the published chapters of Tae Kwon Do Fury’s videos. The weekly schedule, sets, reps, and interval doses are tailored to your practice and coursework.</p><ul><li><a href="https://recwell.berkeley.edu/competitive-programs/martial-arts/martial-arts-clubs-and-contact/" target="_blank" rel="noopener">UC Berkeley RecWell martial arts clubs</a> · Taekwondo program information.</li><li><a href="https://www.youtube.com/watch?v=YO4DI-9XR_M&t=151s" target="_blank" rel="noopener">Why you’re gassing out mid-fight</a> · Aerobic base, harder intervals nearer competition, and practice priorities.</li><li><a href="https://www.youtube.com/watch?v=f3tCXV7H8Yc&t=279s" target="_blank" rel="noopener">Taekwondo strength and conditioning for explosiveness</a> · Activation, hops, box squats, and accessories.</li><li><a href="https://www.worldtaekwondo.org/att_file/documents/WT%20Competition%20Rules%20and%20Interpretation%20%28September%2030%2C%202024%29.pdf" target="_blank" rel="noopener">World Taekwondo competition rules</a> · Round structure.</li></ul></details>
 </section>
-<footer>Collegiate Taekwondo training planner. Settings, confirmed schedules, and practice logs are saved in this browser.</footer>
+<footer>Collegikicks · Collegiate Taekwondo training planner. Settings, confirmed schedules, and practice logs are saved in this browser.</footer>
 </main>
 </body>
 </html>

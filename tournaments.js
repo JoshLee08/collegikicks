@@ -104,6 +104,13 @@ function eventCard(event, selected, savedList = false) {
     info.append(conflict);
   }
 
+  if(selected){
+    const label=document.createElement('label');label.textContent='Your participation (not organizer confirmation)';
+    const select=document.createElement('select');select.setAttribute('aria-label','Your participation in '+event.title);
+    const saved=(settings.tournaments||[]).find(item=>item.id===event.id);
+    for(const value of ['Unspecified','Sparring','Poomsae','Both']){const option=document.createElement('option');option.value=value;option.textContent=value;select.append(option);}
+    select.value=saved?.participation||'Unspecified';select.onchange=()=>{if(saved){saved.participation=select.value;saveSettings();}};label.append(select);info.append(label);
+  }
   const actions = document.createElement('div');
   actions.className = 'tournament-links';
   const button = document.createElement('button');

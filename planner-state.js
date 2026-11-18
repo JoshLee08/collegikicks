@@ -7,6 +7,7 @@ function dateKey(date) {
 }
 
 function readSettings() {
+  if (window.KyorugiAccount?.user) return structuredClone(window.KyorugiPlannerState || {tournaments:[],tournament:"",weeks:{},teams:{},club:"custom",...window.KyorugiAccount.record.planner,profile:window.KyorugiAccount.record.profile});
   try {
     const saved = JSON.parse(localStorage.getItem(storageKey));
     if (saved && typeof saved === 'object') {
@@ -17,7 +18,9 @@ function readSettings() {
 }
 
 const settings = readSettings();
+window.KyorugiPlannerState = settings;
 function saveSettings() {
+  if (window.KyorugiAccount?.user) { window.dispatchEvent(new Event('kyorugi-save')); return; }
   try { localStorage.setItem(storageKey, JSON.stringify(settings)); } catch {}
 }
 

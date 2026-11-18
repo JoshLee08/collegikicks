@@ -546,3 +546,28 @@ input[type="file"]::file-selector-button {
     details::details-content { transition: none !important; }
   }
 }
+
+.account { max-width: 760px; padding-block: 56px; }
+.account h1 { font-size: clamp(32px, 6vw, 52px); margin: 12px 0 20px; }
+.account p { margin-block: 16px; color: white; }
+.account form, .account section { border: 1px solid var(--line); border-radius: 14px; padding: 24px; margin: 24px 0; }
+.account label { display: block; margin: 18px 0 6px; }
+.account input, .account select, .account textarea { display: block; width: 100%; padding: 12px; min-height: 44px; }
+.account button { margin: 20px 12px 0 0; }
+.account fieldset { border: 0; padding: 0; margin: 16px 0; }
+@media(max-width: 600px) { .account { width: calc(100% - 32px); padding-block: 30px; } .top-inner { flex-wrap: wrap; padding-block: 12px; } .top nav { flex-wrap: wrap; gap: 14px; } }
+.account input[type="checkbox"] { display:inline-block; width:20px; min-height:20px; margin-right:12px; vertical-align:middle; }
+dialog { background:var(--navy); color:var(--gold); border:1px solid var(--line); border-radius:14px; max-width:min(720px,90vw); padding:24px; }
+dialog::backdrop { background:#0009; }
+dialog pre { white-space:pre-wrap; font:inherit; margin-block:20px; }
+dialog button { margin:8px; }
+
+/* One account entry point, drawn in the navigation's gold palette. */
+.top nav .profile-link {
+  width: 44px; height: 44px; justify-content: center; flex-shrink: 0;
+  color: var(--gold); border-radius: 50%;
+}
+.top nav .profile-link:hover, .top nav .profile-link[aria-current="page"] {
+  color: var(--navy); background: var(--gold); text-decoration: none;
+}
+.profile-link svg { display: block; }

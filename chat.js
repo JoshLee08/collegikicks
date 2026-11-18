@@ -146,7 +146,7 @@ async function interpretNote(message, start) {
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
     body: JSON.stringify({
       message, week_start: dateKey(start), practice_days: [...new Set(teamBlocks(settings, start).map(block => block.day))],
-      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+      club: settings.club, timezone: settings.profile?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone
     }),
     signal: AbortSignal.timeout(12000)
   });
