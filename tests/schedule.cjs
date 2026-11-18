@@ -4,11 +4,31 @@ const assert = require('node:assert/strict');
 const path = require('node:path');
 const root = path.resolve(__dirname, '..');
 // Exercise the production scheduling and proposal functions without a browser.
-const source = fs.readFileSync(path.join(root, 'assets/js/planner/schedule.js'), 'utf8') + fs.readFileSync(path.join(root, 'assets/js/planner/planner-state.js'), 'utf8') + fs.readFileSync(path.join(root, 'assets/js/planner/planner-core.js'), 'utf8') + fs.readFileSync(path.join(root, 'assets/js/planner/planner.js'), 'utf8').split("byId('course').addEventListener")[0]
-  + fs.readFileSync(path.join(root, 'assets/js/planner/chat.js'), 'utf8').split("const chatMessage =")[0];
+const source =
+  fs.readFileSync(path.join(root, 'assets/js/planner/schedule.js'), 'utf8') +
+  fs.readFileSync(path.join(root, 'assets/js/planner/planner-state.js'), 'utf8') +
+  fs.readFileSync(path.join(root, 'assets/js/planner/planner-core.js'), 'utf8') +
+  fs
+    .readFileSync(path.join(root, 'assets/js/planner/planner.js'), 'utf8')
+    .split("byId('course').addEventListener")[0] +
+  fs
+    .readFileSync(path.join(root, 'assets/js/planner/chat.js'), 'utf8')
+    .split('const chatMessage =')[0];
 const calendarFeed = JSON.parse(fs.readFileSync(path.join(root, 'club-calendar.json'), 'utf8'));
-const context = vm.createContext({ calendarFeed, Intl, Date, structuredClone, document: {}, window: { location: { search: '' } }, URLSearchParams, localStorage: { getItem: () => null }, assert });
-vm.runInContext(source + `
+const context = vm.createContext({
+  calendarFeed,
+  Intl,
+  Date,
+  structuredClone,
+  document: {},
+  window: { location: { search: '' } },
+  URLSearchParams,
+  localStorage: { getItem: () => null },
+  assert
+});
+vm.runInContext(
+  source +
+    `
 const start = parsePlanDate('2026-11-09');
 const initial = { club: 'berkeley', tournament: '', weeks: { '2026-11-09': { practice: { 1: 'moderate' } } } };
 const snapshot = JSON.stringify(initial);
@@ -74,5 +94,9 @@ assert.equal(nextPlan.plan[2].type, 'rest');
 assert.equal(planForWeek(start, {...multi, tournaments:[]}).plan[5].type, 'practice');
 assert.equal(selectedTournaments({...multi, tournament:'2026-12-01'}).length, 3);
 assert.equal(validTournament({id:'bad',title:'Bad',start:'2026-02-30',end:'2026-03-01'}), false);
-`, context);
-console.log('Scheduling, clarification, cross-week preview, and failed-proposal isolation checks passed.');
+`,
+  context
+);
+console.log(
+  'Scheduling, clarification, cross-week preview, and failed-proposal isolation checks passed.'
+);

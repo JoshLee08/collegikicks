@@ -1,7 +1,10 @@
 const navigationHeader = document.querySelector('.top');
 
 function updateNavigationHeight() {
-  document.documentElement.style.setProperty('--navigation-height', `${navigationHeader.getBoundingClientRect().height}px`);
+  document.documentElement.style.setProperty(
+    '--navigation-height',
+    `${navigationHeader.getBoundingClientRect().height}px`
+  );
 }
 
 function updateFloatingNavigation() {
@@ -20,7 +23,7 @@ if (document.getElementById('planner') && window.location.hash === '#tournaments
 }
 
 // Keep a repeated click in the resting palette even while the pointer stays over it.
-document.addEventListener('click', event => {
+document.addEventListener('click', (event) => {
   const control = event.target.closest('button');
   if (!control || control.disabled) return;
   if (control.dataset.tournament) {
@@ -46,12 +49,18 @@ document.addEventListener('click', event => {
   control.toggleAttribute('data-resting', !inverted);
 });
 
-document.addEventListener('pointerout', event => {
+document.addEventListener('pointerout', (event) => {
   const control = event.target.closest('button, summary');
   if (control && !control.contains(event.relatedTarget)) control.removeAttribute('data-resting');
 });
 
-document.addEventListener('toggle', event => {
-  if (event.target.tagName !== 'DETAILS') return;
-  event.target.querySelector(':scope > summary')?.toggleAttribute('data-resting', !event.target.open);
-}, true);
+document.addEventListener(
+  'toggle',
+  (event) => {
+    if (event.target.tagName !== 'DETAILS') return;
+    event.target
+      .querySelector(':scope > summary')
+      ?.toggleAttribute('data-resting', !event.target.open);
+  },
+  true
+);

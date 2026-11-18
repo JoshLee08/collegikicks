@@ -1,9 +1,25 @@
-const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
-const path=require('node:path');
-const plannerRoot=path.resolve(__dirname,'../assets/js/planner');
-const source=['schedule.js','planner-state.js','training.js','planner-core.js'].map(f=>fs.readFileSync(path.join(plannerRoot,f),'utf8')).join('\n');
-const context=vm.createContext({console,Intl,Date,URLSearchParams,structuredClone,window:{location:{search:''}},document:{},localStorage:{getItem:()=>null},assert});
-vm.runInContext(source+`
+const fs = require('node:fs'),
+  vm = require('node:vm'),
+  assert = require('node:assert/strict');
+const path = require('node:path');
+const plannerRoot = path.resolve(__dirname, '../assets/js/planner');
+const source = ['schedule.js', 'planner-state.js', 'training.js', 'planner-core.js']
+  .map((f) => fs.readFileSync(path.join(plannerRoot, f), 'utf8'))
+  .join('\n');
+const context = vm.createContext({
+  console,
+  Intl,
+  Date,
+  URLSearchParams,
+  structuredClone,
+  window: { location: { search: '' } },
+  document: {},
+  localStorage: { getItem: () => null },
+  assert
+});
+vm.runInContext(
+  source +
+    `
 const start=new Date('2026-11-09T12:00:00');
 const base={club:'custom',weeks:{},teams:{},tournaments:[],profile:{onboardingComplete:true,discipline:'Recognized poomsae',sessions:2,duration:20,days:weekdayNames}};
 const plan=planForWeek(start,base).plan;
@@ -20,5 +36,9 @@ const high={...base,weeks:{'2026-11-09':{course:'high'}}};
 assert.ok(planForWeek(start,high).plan.filter(d=>d.type==='extra').length<=1);
 const events={...base,tournaments:[{id:'event',title:'Event',start:'2026-11-14',end:'2026-11-15'}]};
 assert.equal(planForWeek(start,events).plan.filter(d=>d.type==='event').length,2);
-`,context);
-console.log('Personalized discipline, availability, coursework, custom-school and tournament checks passed.');
+`,
+  context
+);
+console.log(
+  'Personalized discipline, availability, coursework, custom-school and tournament checks passed.'
+);

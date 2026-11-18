@@ -1,152 +1,310 @@
 <!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="Collegikicks helps collegiate Taekwondo athletes plan sparring and recognized poomsae training around classes, team practices, and tournaments.">
-<meta name="theme-color" content="#10253d">
-<title>Collegikicks | Collegiate Taekwondo Planner</title>
-<link rel="preconnect" href="https://use.typekit.net" crossorigin>
-<link rel="stylesheet" href="https://use.typekit.net/bba3xnz.css">
-<link rel="stylesheet" href="assets/css/style.css?v=collegikicks-accounts-1">
-<script src="assets/js/shared/navigation.js?v=collegikicks-accounts-1" defer></script>
-<script src="assets/js/planner/schedule.js?v=collegikicks-accounts-1" defer></script>
-<script src="assets/js/planner/planner-state.js?v=collegikicks-accounts-1" defer></script>
-<script src="assets/js/planner/training.js?v=collegikicks-accounts-1" defer></script><script src="assets/js/planner/planner-core.js?v=collegikicks-accounts-1" defer></script><script src="assets/js/planner/planner.js?v=collegikicks-accounts-1" defer></script>
-<script src="assets/js/planner/schedule-ui.js?v=collegikicks-accounts-1" defer></script>
-<script src="assets/js/planner/chat.js?v=collegikicks-accounts-1" defer></script>
-<script src="config/account-config.js?v=collegikicks-accounts-1" defer></script><script src="assets/js/account/account-service.js?v=collegikicks-accounts-1" defer></script><script src="assets/js/account/account-planner.js?v=collegikicks-accounts-1" defer></script></head>
-<body>
-<div class="top-slot"><header class="top"><div class="shell top-inner"><a class="brand" href="./"><span class="mark" aria-hidden="true">∕∕</span> COLLEGIKICKS</a><nav aria-label="Main navigation"><a href="./" aria-current="page">Planner</a><a href="tournaments.html">Tournaments <span id="tournament-count">0</span></a><a class="profile-link" href="profile.html" aria-label="Profile and account" title="Profile and account"><svg viewBox="0 0 32 32" width="30" height="30" fill="none" aria-hidden="true" focusable="false"><circle cx="16" cy="16" r="14" stroke="currentColor" stroke-width="2"/><circle cx="16" cy="12" r="5" fill="currentColor"/><path d="M6.5 25.5C7.2 20.8 10.8 18 16 18s8.8 2.8 9.5 7.5A13 13 0 0 1 16 29a13 13 0 0 1-9.5-3.5Z" fill="currentColor"/></svg></a></nav></div></header></div>
-<main class="shell" id="planner">
-<section class="hero" aria-labelledby="title">
-  <div class="hero-copy">
-    <p class="kicker"><span aria-hidden="true"></span>Collegiate Taekwondo</p>
-    <h1 id="title">Taekwondo<br>Training Planner</h1>
-    <p>Plan strength and conditioning around your classes, team practices, and tournament day.</p>
-  </div>
-</section>
-<section class="schedule" aria-labelledby="week-title">
-  <div class="week-heading">
-    <div><p class="eyebrow">Weekly schedule</p><h2 id="week-title"></h2></div>
-    <div class="week-controls">
-      <div class="week-nav" role="group" aria-label="Choose a week">
-        <button type="button" id="previous" aria-label="Previous week">←</button>
-        <button type="button" id="today">This week</button>
-        <button type="button" id="next" aria-label="Next week">→</button>
-      </div>
-      <button type="button" class="primary" id="edit-schedule" aria-controls="schedule-setup" aria-expanded="false">Edit schedule</button>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="description"
+      content="Collegikicks helps collegiate Taekwondo athletes plan sparring and recognized poomsae training around classes, team practices, and tournaments."
+    />
+    <meta name="theme-color" content="#10253d" />
+    <title>Collegikicks | Collegiate Taekwondo Planner</title>
+    <link rel="preconnect" href="https://use.typekit.net" crossorigin />
+    <link rel="stylesheet" href="https://use.typekit.net/bba3xnz.css" />
+    <link rel="stylesheet" href="assets/css/style.css?v=collegikicks-accounts-1" />
+    <script src="assets/js/shared/navigation.js?v=collegikicks-accounts-1" defer></script>
+    <script src="assets/js/planner/schedule.js?v=collegikicks-accounts-1" defer></script>
+    <script src="assets/js/planner/planner-state.js?v=collegikicks-accounts-1" defer></script>
+    <script src="assets/js/planner/training.js?v=collegikicks-accounts-1" defer></script>
+    <script src="assets/js/planner/planner-core.js?v=collegikicks-accounts-1" defer></script>
+    <script src="assets/js/planner/planner.js?v=collegikicks-accounts-1" defer></script>
+    <script src="assets/js/planner/schedule-ui.js?v=collegikicks-accounts-1" defer></script>
+    <script src="assets/js/planner/chat.js?v=collegikicks-accounts-1" defer></script>
+    <script src="config/account-config.js?v=collegikicks-accounts-1" defer></script>
+    <script src="assets/js/account/account-service.js?v=collegikicks-accounts-1" defer></script>
+    <script src="assets/js/account/account-planner.js?v=collegikicks-accounts-1" defer></script>
+  </head>
+  <body>
+    <div class="top-slot">
+      <header class="top">
+        <div class="shell top-inner">
+          <a class="brand" href="./"
+            ><span class="mark" aria-hidden="true">∕∕</span> COLLEGIKICKS</a
+          >
+          <nav aria-label="Main navigation">
+            <a href="./" aria-current="page">Planner</a
+            ><a href="tournaments.html">Tournaments <span id="tournament-count">0</span></a
+            ><a
+              class="profile-link"
+              href="profile.html"
+              aria-label="Profile and account"
+              title="Profile and account"
+              ><svg
+                viewBox="0 0 32 32"
+                width="30"
+                height="30"
+                fill="none"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <circle cx="16" cy="16" r="14" stroke="currentColor" stroke-width="2" />
+                <circle cx="16" cy="12" r="5" fill="currentColor" />
+                <path
+                  d="M6.5 25.5C7.2 20.8 10.8 18 16 18s8.8 2.8 9.5 7.5A13 13 0 0 1 16 29a13 13 0 0 1-9.5-3.5Z"
+                  fill="currentColor"
+                /></svg
+            ></a>
+          </nav>
+        </div>
+      </header>
     </div>
-  </div>
-  <div class="week-context">
-    <div class="summary">
-      <span><strong id="practice-count"></strong></span>
-      <span><strong id="minutes"></strong> solo training</span>
-      <span id="rest-days"></span>
-    </div>
-    <div class="schedule-context">
-      <p id="class-summary" hidden></p>
-      <button type="button" class="text-button" id="add-classes" aria-controls="schedule-setup" aria-expanded="false">Add class schedule</button>
-    </div>
-  </div>
-  <section class="setup" id="schedule-setup" aria-labelledby="setup-title" hidden>
-    <h3 id="setup-title">Team &amp; class schedule</h3>
-    <div class="setup-grid">
-      <div class="setup-panel">
-        <label for="club">Collegiate Taekwondo club</label>
-        <select id="club">
-          <option value="custom">Other / independent / add later</option><option value="berkeley">UC Berkeley Taekwondo</option>
-          <option value="fresno">Fresno State Taekwondo</option>
-          <option value="menlo">Menlo College Taekwondo</option>
-          <option value="usc">USC Taekwondo</option>
-          <option value="uci">UCI Taekwondo</option>
-          <option value="ucsd">UCSD Taekwondo</option>
-          <option value="ucd">UCD Taekwondo</option>
-          <option value="ucla">UCLA Taekwondo</option>
-        </select>
-        <p id="club-note"></p>
-        <label for="course">Course load this week</label>
-        <select id="course"><option value="normal">Regular week</option><option value="high">High coursework</option></select>
-        <p id="club-sources"></p>
-        <p id="club-checked"></p>
-        <button type="button" id="refresh-clubs">Reload club calendar</button>
-        <p id="club-refresh-status" role="status"></p>
-        <details><summary>Override team practice times</summary>
-          <p>Enter the days and times your coach provides. These override published hours. Save an empty box to restore club defaults.</p>
-          <textarea id="team-times" aria-label="Team practice times" rows="3" placeholder="Tue 19:00–21:00&#10;Thu 19:00–21:00&#10;Sat 09:00–11:00"></textarea>
-          <button type="button" class="primary" id="save-team">Save practice times</button>
-          <p id="team-status" role="status"></p>
+    <main class="shell" id="planner">
+      <section class="hero" aria-labelledby="title">
+        <div class="hero-copy">
+          <p class="kicker"><span aria-hidden="true"></span>Collegiate Taekwondo</p>
+          <h1 id="title">Taekwondo<br />Training Planner</h1>
+          <p>
+            Plan strength and conditioning around your classes, team practices, and tournament day.
+          </p>
+        </div>
+      </section>
+      <section class="schedule" aria-labelledby="week-title">
+        <div class="week-heading">
+          <div>
+            <p class="eyebrow">Weekly schedule</p>
+            <h2 id="week-title"></h2>
+          </div>
+          <div class="week-controls">
+            <div class="week-nav" role="group" aria-label="Choose a week">
+              <button type="button" id="previous" aria-label="Previous week">←</button>
+              <button type="button" id="today">This week</button>
+              <button type="button" id="next" aria-label="Next week">→</button>
+            </div>
+            <button
+              type="button"
+              class="primary"
+              id="edit-schedule"
+              aria-controls="schedule-setup"
+              aria-expanded="false"
+            >
+              Edit schedule
+            </button>
+          </div>
+        </div>
+        <div class="week-context">
+          <div class="summary">
+            <span><strong id="practice-count"></strong></span>
+            <span><strong id="minutes"></strong> solo training</span>
+            <span id="rest-days"></span>
+          </div>
+          <div class="schedule-context">
+            <p id="class-summary" hidden></p>
+            <button
+              type="button"
+              class="text-button"
+              id="add-classes"
+              aria-controls="schedule-setup"
+              aria-expanded="false"
+            >
+              Add class schedule
+            </button>
+          </div>
+        </div>
+        <section class="setup" id="schedule-setup" aria-labelledby="setup-title" hidden>
+          <h3 id="setup-title">Team &amp; class schedule</h3>
+          <div class="setup-grid">
+            <div class="setup-panel">
+              <label for="club">Collegiate Taekwondo club</label>
+              <select id="club">
+                <option value="custom">Other / independent / add later</option>
+                <option value="berkeley">UC Berkeley Taekwondo</option>
+                <option value="fresno">Fresno State Taekwondo</option>
+                <option value="menlo">Menlo College Taekwondo</option>
+                <option value="usc">USC Taekwondo</option>
+                <option value="uci">UCI Taekwondo</option>
+                <option value="ucsd">UCSD Taekwondo</option>
+                <option value="ucd">UCD Taekwondo</option>
+                <option value="ucla">UCLA Taekwondo</option>
+              </select>
+              <p id="club-note"></p>
+              <label for="course">Course load this week</label>
+              <select id="course">
+                <option value="normal">Regular week</option>
+                <option value="high">High coursework</option>
+              </select>
+              <p id="club-sources"></p>
+              <p id="club-checked"></p>
+              <button type="button" id="refresh-clubs">Reload club calendar</button>
+              <p id="club-refresh-status" role="status"></p>
+              <details>
+                <summary>Override team practice times</summary>
+                <p>
+                  Enter the days and times your coach provides. These override published hours. Save
+                  an empty box to restore club defaults.
+                </p>
+                <textarea
+                  id="team-times"
+                  aria-label="Team practice times"
+                  rows="3"
+                  placeholder="Tue 19:00–21:00&#10;Thu 19:00–21:00&#10;Sat 09:00–11:00"
+                ></textarea>
+                <button type="button" class="primary" id="save-team">Save practice times</button>
+                <p id="team-status" role="status"></p>
+              </details>
+            </div>
+            <div class="setup-panel">
+              <label for="schedule-file">Import commitments</label>
+              <input type="file" id="schedule-file" accept=".pdf,.ics,.csv,.txt" multiple />
+              <p>
+                PDF, ICS, CSV, or TXT. Files are read in your browser. Confirm times before saving.
+              </p>
+              <fieldset class="scope">
+                <legend>Apply schedule to</legend>
+                <label
+                  ><input type="radio" name="schedule-scope" value="week" checked /> Displayed
+                  week</label
+                >
+                <label
+                  ><input type="radio" name="schedule-scope" value="recurring" /> Every week</label
+                >
+              </fieldset>
+              <p id="import-target"></p>
+              <details id="schedule-review">
+                <summary>Review or enter time blocks</summary>
+                <p>One block per line. Use a weekday, start and end time, and optional label.</p>
+                <textarea
+                  id="commitments"
+                  aria-label="Class and commitment time blocks"
+                  rows="4"
+                  placeholder="Mon 09:00–10:30 Chemistry&#10;Wed 14:00–16:00 Lab"
+                ></textarea>
+                <button type="button" class="primary" id="save-commitments">Apply schedule</button>
+                <button type="button" id="clear-commitments">Clear schedule</button>
+                <details id="import-text" hidden>
+                  <summary>Extracted text for review</summary>
+                  <pre id="import-raw"></pre>
+                </details>
+              </details>
+              <p id="import-status" role="status"></p>
+            </div>
+          </div>
+          <div class="setup-actions"><button type="button" id="close-setup">Done</button></div>
+        </section>
+        <div id="week" class="week" role="group" aria-label="Choose a day"></div>
+        <article class="details" id="day-detail" aria-labelledby="detail-title">
+          <div>
+            <p class="eyebrow" id="detail-date"></p>
+            <h3 id="detail-title"></h3>
+            <p class="detail-meta" id="detail-time"></p>
+          </div>
+          <div class="detail-content">
+            <div id="details" aria-live="polite"></div>
+            <div id="day-commitments"></div>
+            <div class="practice-log" id="practice-log" hidden>
+              <label for="practice-load">How hard was practice?</label>
+              <select id="practice-load">
+                <option value="">Not logged</option>
+                <option value="light">Light · mostly drills</option>
+                <option value="moderate">Moderate · some hard rounds</option>
+                <option value="hard">Hard · demanding rounds or conditioning</option>
+              </select>
+              <p id="practice-feedback" role="status"></p>
+            </div>
+          </div>
+        </article>
+        <div class="training-context">
+          <div class="phase" role="status" aria-label="Training phase">
+            <span class="eyebrow">Training phase</span>
+            <strong id="phase"></strong>
+            <small id="countdown"></small>
+          </div>
+          <div class="phase">
+            <span class="eyebrow">My tournaments</span>
+            <strong id="tournament-summary"></strong>
+            <a href="tournaments.html">Find tournaments →</a>
+          </div>
+        </div>
+      </section>
+      <section class="chat" aria-labelledby="chat-title">
+        <p class="eyebrow">SCHEDULE ASSISTANT</p>
+        <h2 id="chat-title">Update your week</h2>
+        <p>
+          Describe what happened at practice or what’s coming up. Review the changes before applying
+          them.
+        </p>
+        <p id="chat-mode"></p>
+        <form id="chat-form">
+          <label for="chat-message">Practice or schedule note</label>
+          <textarea
+            id="chat-message"
+            maxlength="1500"
+            required
+            rows="3"
+            placeholder="Tuesday was hard, and I have two midterms this week."
+          ></textarea>
+          <div id="chat-access" hidden>
+            <label for="chat-token">Assistant access token</label
+            ><input type="password" id="chat-token" autocomplete="off" />
+          </div>
+          <div class="chat-actions">
+            <button type="submit" class="primary" id="chat-preview">Preview changes</button
+            ><button type="button" id="chat-apply" hidden>Apply changes</button>
+          </div>
+        </form>
+        <div id="chat-result" role="status"></div>
+      </section>
+      <section class="guides" aria-label="Training guidance">
+        <details id="sources">
+          <summary>Training sources</summary>
+          <p>
+            The sessions adapt ideas from the published chapters of Tae Kwon Do Fury’s videos. The
+            weekly schedule, sets, reps, and interval doses are tailored to your practice and
+            coursework.
+          </p>
+          <ul>
+            <li>
+              <a
+                href="https://recwell.berkeley.edu/competitive-programs/martial-arts/martial-arts-clubs-and-contact/"
+                target="_blank"
+                rel="noopener"
+                >UC Berkeley RecWell martial arts clubs</a
+              >
+              · Taekwondo program information.
+            </li>
+            <li>
+              <a
+                href="https://www.youtube.com/watch?v=YO4DI-9XR_M&t=151s"
+                target="_blank"
+                rel="noopener"
+                >Why you’re gassing out mid-fight</a
+              >
+              · Aerobic base, harder intervals nearer competition, and practice priorities.
+            </li>
+            <li>
+              <a
+                href="https://www.youtube.com/watch?v=f3tCXV7H8Yc&t=279s"
+                target="_blank"
+                rel="noopener"
+                >Taekwondo strength and conditioning for explosiveness</a
+              >
+              · Activation, hops, box squats, and accessories.
+            </li>
+            <li>
+              <a
+                href="https://www.worldtaekwondo.org/att_file/documents/WT%20Competition%20Rules%20and%20Interpretation%20%28September%2030%2C%202024%29.pdf"
+                target="_blank"
+                rel="noopener"
+                >World Taekwondo competition rules</a
+              >
+              · Round structure.
+            </li>
+          </ul>
         </details>
-      </div>
-      <div class="setup-panel">
-        <label for="schedule-file">Import commitments</label>
-        <input type="file" id="schedule-file" accept=".pdf,.ics,.csv,.txt" multiple>
-        <p>PDF, ICS, CSV, or TXT. Files are read in your browser. Confirm times before saving.</p>
-        <fieldset class="scope"><legend>Apply schedule to</legend>
-          <label><input type="radio" name="schedule-scope" value="week" checked> Displayed week</label>
-          <label><input type="radio" name="schedule-scope" value="recurring"> Every week</label>
-        </fieldset>
-        <p id="import-target"></p>
-        <details id="schedule-review"><summary>Review or enter time blocks</summary>
-          <p>One block per line. Use a weekday, start and end time, and optional label.</p>
-          <textarea id="commitments" aria-label="Class and commitment time blocks" rows="4" placeholder="Mon 09:00–10:30 Chemistry&#10;Wed 14:00–16:00 Lab"></textarea>
-          <button type="button" class="primary" id="save-commitments">Apply schedule</button>
-          <button type="button" id="clear-commitments">Clear schedule</button>
-          <details id="import-text" hidden><summary>Extracted text for review</summary><pre id="import-raw"></pre></details>
-        </details>
-        <p id="import-status" role="status"></p>
-      </div>
-    </div>
-    <div class="setup-actions"><button type="button" id="close-setup">Done</button></div>
-  </section>
-  <div id="week" class="week" role="group" aria-label="Choose a day"></div>
-  <article class="details" id="day-detail" aria-labelledby="detail-title">
-    <div><p class="eyebrow" id="detail-date"></p><h3 id="detail-title"></h3><p class="detail-meta" id="detail-time"></p></div>
-    <div class="detail-content">
-      <div id="details" aria-live="polite"></div>
-      <div id="day-commitments"></div>
-      <div class="practice-log" id="practice-log" hidden>
-        <label for="practice-load">How hard was practice?</label>
-        <select id="practice-load">
-          <option value="">Not logged</option>
-          <option value="light">Light · mostly drills</option>
-          <option value="moderate">Moderate · some hard rounds</option>
-          <option value="hard">Hard · demanding rounds or conditioning</option>
-        </select>
-        <p id="practice-feedback" role="status"></p>
-      </div>
-    </div>
-  </article>
-  <div class="training-context">
-    <div class="phase" role="status" aria-label="Training phase">
-      <span class="eyebrow">Training phase</span>
-      <strong id="phase"></strong>
-      <small id="countdown"></small>
-    </div>
-    <div class="phase">
-      <span class="eyebrow">My tournaments</span>
-      <strong id="tournament-summary"></strong>
-      <a href="tournaments.html">Find tournaments →</a>
-    </div>
-  </div>
-</section>
-<section class="chat" aria-labelledby="chat-title">
-  <p class="eyebrow">SCHEDULE ASSISTANT</p>
-  <h2 id="chat-title">Update your week</h2>
-  <p>Describe what happened at practice or what’s coming up. Review the changes before applying them.</p>
-  <p id="chat-mode"></p>
-  <form id="chat-form">
-    <label for="chat-message">Practice or schedule note</label>
-    <textarea id="chat-message" maxlength="1500" required rows="3" placeholder="Tuesday was hard, and I have two midterms this week."></textarea>
-    <div id="chat-access" hidden><label for="chat-token">Assistant access token</label><input type="password" id="chat-token" autocomplete="off"></div>
-    <div class="chat-actions"><button type="submit" class="primary" id="chat-preview">Preview changes</button><button type="button" id="chat-apply" hidden>Apply changes</button></div>
-  </form>
-  <div id="chat-result" role="status"></div>
-</section>
-<section class="guides" aria-label="Training guidance">
-<details id="sources"><summary>Training sources</summary><p>The sessions adapt ideas from the published chapters of Tae Kwon Do Fury’s videos. The weekly schedule, sets, reps, and interval doses are tailored to your practice and coursework.</p><ul><li><a href="https://recwell.berkeley.edu/competitive-programs/martial-arts/martial-arts-clubs-and-contact/" target="_blank" rel="noopener">UC Berkeley RecWell martial arts clubs</a> · Taekwondo program information.</li><li><a href="https://www.youtube.com/watch?v=YO4DI-9XR_M&t=151s" target="_blank" rel="noopener">Why you’re gassing out mid-fight</a> · Aerobic base, harder intervals nearer competition, and practice priorities.</li><li><a href="https://www.youtube.com/watch?v=f3tCXV7H8Yc&t=279s" target="_blank" rel="noopener">Taekwondo strength and conditioning for explosiveness</a> · Activation, hops, box squats, and accessories.</li><li><a href="https://www.worldtaekwondo.org/att_file/documents/WT%20Competition%20Rules%20and%20Interpretation%20%28September%2030%2C%202024%29.pdf" target="_blank" rel="noopener">World Taekwondo competition rules</a> · Round structure.</li></ul></details>
-</section>
-<footer>Collegikicks · Collegiate Taekwondo training planner. Settings, confirmed schedules, and practice logs are saved in this browser.</footer>
-</main>
-</body>
+      </section>
+      <footer>
+        Collegikicks · Collegiate Taekwondo training planner. Settings, confirmed schedules, and
+        practice logs are saved in this browser.
+      </footer>
+    </main>
+  </body>
 </html>

@@ -1,17 +1,24 @@
 function render(focusDay = false) {
   const weekSettings = settings.weeks[dateKey(weekStart)] || {};
-  const { plan, practice, tournament, phase, tournamentIndex, team, commitments, events } = planForWeek(weekStart, settings);
+  const { plan, practice, tournament, phase, tournamentIndex, team, commitments, events } =
+    planForWeek(weekStart, settings);
   const club = publishedClubs[settings.club];
   const manual = settings.teams?.[settings.club];
   byId('club-note').textContent = manual
     ? `${team.length} coach-entered practice blocks this week.`
-    : settings.club === 'berkeley' ? 'Using your Tuesday and Thursday nights and Saturday morning.'
-    : team.length ? `${team.length} published practices this week. Check the club page for term changes.`
-    : club?.practices?.length ? 'No published practices apply to this week.'
-    : 'Enter your coach’s practice times to add team sessions.';
+    : settings.club === 'berkeley'
+      ? 'Using your Tuesday and Thursday nights and Saturday morning.'
+      : team.length
+        ? `${team.length} published practices this week. Check the club page for term changes.`
+        : club?.practices?.length
+          ? 'No published practices apply to this week.'
+          : 'Enter your coach’s practice times to add team sessions.';
   const sources = byId('club-sources');
   sources.replaceChildren();
-  for (const [url, label] of [[club?.source, 'Club schedule'], [club?.practiceSource, 'Practice hours']]) {
+  for (const [url, label] of [
+    [club?.source, 'Club schedule'],
+    [club?.practiceSource, 'Practice hours']
+  ]) {
     if (!url || (label === 'Practice hours' && url === club.source)) continue;
     const link = document.createElement('a');
     link.href = url;
@@ -21,11 +28,14 @@ function render(focusDay = false) {
     sources.append(link);
   }
   const checked = [club?.practiceChecked, club?.eventsChecked].filter(Boolean).sort().at(-1);
-  byId('club-checked').textContent = checked ? `Source checked ${dateFormatter.format(new Date(`${checked}T12:00:00`))}` : '';
+  byId('club-checked').textContent = checked
+    ? `Source checked ${dateFormatter.format(new Date(`${checked}T12:00:00`))}`
+    : '';
   const end = addDays(weekStart, 6);
-  const weekLabel = weekStart.getMonth() === end.getMonth()
-    ? `${dateFormatter.format(weekStart)}–${end.getDate()}`
-    : `${dateFormatter.format(weekStart)} – ${dateFormatter.format(end)}`;
+  const weekLabel =
+    weekStart.getMonth() === end.getMonth()
+      ? `${dateFormatter.format(weekStart)}–${end.getDate()}`
+      : `${dateFormatter.format(weekStart)} – ${dateFormatter.format(end)}`;
   byId('week-title').textContent = `${weekLabel}, ${end.getFullYear()}`;
   const classSummary = byId('class-summary');
   const scopedClasses = Array.isArray(weekSettings.commitments);
@@ -35,21 +45,32 @@ function render(focusDay = false) {
   byId('add-classes').hidden = !classSummary.hidden;
   renderTournamentSummary();
   byId('course').value = weekSettings.course || 'normal';
-  byId('phase').textContent = { base: 'Build your base', build: 'Competition build', event: 'Tournament week', after: 'Back to base' }[phase];
+  byId('phase').textContent = {
+    base: 'Build your base',
+    build: 'Competition build',
+    event: 'Tournament week',
+    after: 'Back to base'
+  }[phase];
   const distance = tournament ? dayDistance(new Date(), tournament) : null;
-  byId('countdown').textContent = distance === null ? 'Add a tournament to adapt the plan'
-    : distance === 0 ? 'Tournament today'
-    : distance > 0 ? `${distance} ${distance === 1 ? 'day' : 'days'} until tournament`
-    : `Tournament was ${-distance} ${distance === -1 ? 'day' : 'days'} ago`;
+  byId('countdown').textContent =
+    distance === null
+      ? 'Add a tournament to adapt the plan'
+      : distance === 0
+        ? 'Tournament today'
+        : distance > 0
+          ? `${distance} ${distance === 1 ? 'day' : 'days'} until tournament`
+          : `Tournament was ${-distance} ${distance === -1 ? 'day' : 'days'} ago`;
 
   const minimum = plan.reduce((sum, day) => sum + day.minutes[0], 0);
   const maximum = plan.reduce((sum, day) => sum + day.minutes[1], 0);
-  byId('minutes').textContent = minimum === maximum ? `${minimum} min` : `${minimum}–${maximum} min`;
-  const restDays = plan.filter(day => day.type === 'rest').length;
+  byId('minutes').textContent =
+    minimum === maximum ? `${minimum} min` : `${minimum}–${maximum} min`;
+  const restDays = plan.filter((day) => day.type === 'rest').length;
   byId('rest-days').textContent = `${restDays} rest ${restDays === 1 ? 'day' : 'days'}`;
-  const count = plan.filter(day => day.type === 'practice').length;
-  const eventDays = plan.filter(day => day.type === 'event').length;
-  byId('practice-count').textContent = `${count} team ${count === 1 ? 'practice' : 'practices'}${eventDays ? ` + ${eventDays} competition ${eventDays === 1 ? 'day' : 'days'}` : ''}`;
+  const count = plan.filter((day) => day.type === 'practice').length;
+  const eventDays = plan.filter((day) => day.type === 'event').length;
+  byId('practice-count').textContent =
+    `${count} team ${count === 1 ? 'practice' : 'practices'}${eventDays ? ` + ${eventDays} competition ${eventDays === 1 ? 'day' : 'days'}` : ''}`;
 
   const week = byId('week');
   const dayDetail = byId('day-detail');
@@ -58,20 +79,26 @@ function render(focusDay = false) {
   const detailWasFocused = dayDetail.contains(active);
   if (week.contains(dayDetail)) week.after(dayDetail);
   const today = dateKey(new Date());
-  const dayMarkup = plan.map((day, index) => {
-    const date = addDays(weekStart, index);
-    const isToday = dateKey(date) === today;
-    return `
+  const dayMarkup = plan
+    .map((day, index) => {
+      const date = addDays(weekStart, index);
+      const isToday = dateKey(date) === today;
+      return `
     <button type="button" class="day ${day.type}" data-day="${index}" aria-controls="day-detail" aria-pressed="${dayDetailsOpen && index === selectedDay}" aria-expanded="${dayDetailsOpen && index === selectedDay}"${isToday ? ' aria-current="date"' : ''}>
-      <span class="day-top"><time datetime="${dateKey(date)}">${days[index]} ${date.getDate()}</time>${isToday
-        ? '<span class="today-label">Today</span>' : ''}</span>
+      <span class="day-top"><time datetime="${dateKey(date)}">${days[index]} ${date.getDate()}</time>${
+        isToday ? '<span class="today-label">Today</span>' : ''
+      }</span>
       <strong>${day.title}</strong>
       ${day.type === 'extra' ? '<span class="day-type">Solo training</span>' : ''}
-      ${events.some(event => event.start <= dateKey(date) && event.end >= dateKey(date))
-        ? '<span class="club-event-tag">Competition listed</span>' : ''}
+      ${
+        events.some((event) => event.start <= dateKey(date) && event.end >= dateKey(date))
+          ? '<span class="club-event-tag">Competition listed</span>'
+          : ''
+      }
       <span class="day-time">${day.time}${day.type === 'practice' && practiceLabels[practice[index]] ? ` · ${practiceLabels[practice[index]]}` : ''}</span>
     </button>`;
-  }).join('');
+    })
+    .join('');
   if (focusDay) {
     for (const button of week.querySelectorAll('[data-day]')) {
       const expanded = dayDetailsOpen && Number(button.dataset.day) === selectedDay;
@@ -85,15 +112,15 @@ function render(focusDay = false) {
   placeDayDetail();
   const day = plan[selectedDay];
   const content = Array.isArray(day.content)
-    ? `<ol>${day.content.map(item => `<li>${item}</li>`).join('')}</ol>`
+    ? `<ol>${day.content.map((item) => `<li>${item}</li>`).join('')}</ol>`
     : `<p>${day.content}</p>`;
   byId('detail-date').textContent = longFormatter.format(addDays(weekStart, selectedDay));
   byId('detail-title').textContent = day.title;
   byId('detail-time').textContent = day.time;
   byId('details').innerHTML = content;
   const agenda = byId('day-commitments');
-  const booked = commitments.filter(block => block.day === selectedDay);
-  const fixed = team.filter(block => block.day === selectedDay);
+  const booked = commitments.filter((block) => block.day === selectedDay);
+  const fixed = team.filter((block) => block.day === selectedDay);
   agenda.replaceChildren();
   if (booked.length || fixed.length) {
     const title = document.createElement('h4');
@@ -102,9 +129,15 @@ function render(focusDay = false) {
     for (const block of [...booked, ...fixed].sort((a, b) => a.start - b.start)) {
       const item = document.createElement('li');
       const isTeam = fixed.includes(block);
-      const time = block.approximate ? block.label : `${displayTime(block.start)}–${displayTime(block.end)}`;
+      const time = block.approximate
+        ? block.label
+        : `${displayTime(block.start)}–${displayTime(block.end)}`;
       item.textContent = `${time} · ${isTeam ? 'Team practice' : block.label || 'Busy'}`;
-      if (isTeam && !block.approximate && booked.some(other => block.start < other.end && block.end > other.start)) {
+      if (
+        isTeam &&
+        !block.approximate &&
+        booked.some((other) => block.start < other.end && block.end > other.start)
+      ) {
         item.textContent += ' · overlaps a commitment';
       }
       list.append(item);
@@ -112,7 +145,9 @@ function render(focusDay = false) {
     agenda.append(title, list);
   }
   const selectedDate = dateKey(addDays(weekStart, selectedDay));
-  const attending = selectedTournaments(settings).filter(event => event.start <= selectedDate && event.end >= selectedDate);
+  const attending = selectedTournaments(settings).filter(
+    (event) => event.start <= selectedDate && event.end >= selectedDate
+  );
   for (const event of attending) {
     const row = document.createElement('p');
     row.className = 'club-event-detail';
@@ -120,7 +155,7 @@ function render(focusDay = false) {
     if (booked.length || fixed.length) row.append(' · overlaps classes or team practice');
     agenda.append(row);
   }
-  const listed = events.filter(event => event.start <= selectedDate && event.end >= selectedDate);
+  const listed = events.filter((event) => event.start <= selectedDate && event.end >= selectedDate);
   for (const event of listed) {
     const row = document.createElement('p');
     row.className = 'club-event-detail';
@@ -137,12 +172,21 @@ function render(focusDay = false) {
   byId('practice-load').value = practice[selectedDay] || '';
   const practiceUpdates = {
     1: 'Tuesday’s effort informs the midweek bike session.',
-    3: practice[3] === 'hard' ? 'Friday’s recovery note has been updated.' : 'Friday is open for coursework and recovery when free.',
-    5: practice[5] === 'hard' ? 'Next week’s lift will be shortened if it’s scheduled.' : 'Next week’s lift follows your coursework and tournament settings.'
+    3:
+      practice[3] === 'hard'
+        ? 'Friday’s recovery note has been updated.'
+        : 'Friday is open for coursework and recovery when free.',
+    5:
+      practice[5] === 'hard'
+        ? 'Next week’s lift will be shortened if it’s scheduled.'
+        : 'Next week’s lift follows your coursework and tournament settings.'
   };
-  byId('practice-feedback').textContent = practiceUpdates[selectedDay] || 'Practice effort is saved with this week.';
+  byId('practice-feedback').textContent =
+    practiceUpdates[selectedDay] || 'Practice effort is saved with this week.';
   if (focusDay || focusedDay !== undefined) {
-    week.querySelector(`[data-day="${focusDay ? selectedDay : focusedDay}"]`).focus({ preventScroll: !focusDay });
+    week
+      .querySelector(`[data-day="${focusDay ? selectedDay : focusedDay}"]`)
+      .focus({ preventScroll: !focusDay });
   } else if (detailWasFocused && active.isConnected && document.activeElement !== active) {
     active.focus({ preventScroll: true });
   }
@@ -173,7 +217,7 @@ function placeDayDetail() {
   }
 }
 
-byId('course').addEventListener('change', event => setWeekOption('course', event.target.value));
+byId('course').addEventListener('change', (event) => setWeekOption('course', event.target.value));
 const compactWeek = window.matchMedia('(max-width: 720px)');
 compactWeek.addEventListener('change', () => {
   const active = document.activeElement;
@@ -204,15 +248,19 @@ function toggleSetup(open, trigger = setupTrigger) {
 editSchedule.addEventListener('click', () => toggleSetup(setup.hidden, editSchedule));
 addClasses.addEventListener('click', () => toggleSetup(setup.hidden, addClasses));
 byId('close-setup').addEventListener('click', () => toggleSetup(false));
-byId('practice-load').addEventListener('change', event => {
+byId('practice-load').addEventListener('change', (event) => {
   const week = settings.weeks[dateKey(weekStart)] || {};
-  const practice = week.practiceByClub?.[settings.club] || (settings.club === 'berkeley' ? week.practice : {});
-  setWeekOption('practiceByClub', { ...week.practiceByClub, [settings.club]: { ...practice, [selectedDay]: event.target.value } });
+  const practice =
+    week.practiceByClub?.[settings.club] || (settings.club === 'berkeley' ? week.practice : {});
+  setWeekOption('practiceByClub', {
+    ...week.practiceByClub,
+    [settings.club]: { ...practice, [selectedDay]: event.target.value }
+  });
 });
 byId('previous').addEventListener('click', () => goToWeek(addDays(weekStart, -7)));
 byId('next').addEventListener('click', () => goToWeek(addDays(weekStart, 7)));
 byId('today').addEventListener('click', () => goToWeek(new Date()));
-byId('week').addEventListener('click', event => {
+byId('week').addEventListener('click', (event) => {
   const button = event.target.closest('[data-day]');
   if (!button) return;
   const clickedDay = Number(button.dataset.day);
@@ -223,12 +271,15 @@ byId('week').addEventListener('click', event => {
     const detail = byId('day-detail');
     for (const animation of detail.getAnimations()) animation.cancel();
     detail.animate(
-      [{ opacity: 0.65, transform: 'translateY(4px)' }, { opacity: 1, transform: 'translateY(0)' }],
+      [
+        { opacity: 0.65, transform: 'translateY(4px)' },
+        { opacity: 1, transform: 'translateY(0)' }
+      ],
       { duration: 200, easing: 'ease-out' }
     );
   }
 });
-window.addEventListener('pageshow', event => {
+window.addEventListener('pageshow', (event) => {
   if (!event.persisted) return;
   Object.assign(settings, readSettings());
   render();

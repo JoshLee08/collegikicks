@@ -1,7 +1,15 @@
 // Set this to the HTTPS origin of your Python API to enable model interpretation.
 const planApiOrigin = '';
 
-const practiceDays = { monday: 0, tuesday: 1, wednesday: 2, thursday: 3, friday: 4, saturday: 5, sunday: 6 };
+const practiceDays = {
+  monday: 0,
+  tuesday: 1,
+  wednesday: 2,
+  thursday: 3,
+  friday: 4,
+  saturday: 5,
+  sunday: 6
+};
 const planOperations = {
   log_practice: ['light', 'moderate', 'hard'],
   set_course_load: ['normal', 'high'],
@@ -16,20 +24,37 @@ function parsePlanDate(value) {
 }
 
 function interpretLocally(message, start, today = new Date()) {
-  const clauses = message.toLowerCase().split(/\s*(?:[;.!\n]+|,\s*and\b|\band\b)\s*/).filter(Boolean);
+  const clauses = message
+    .toLowerCase()
+    .split(/\s*(?:[;.!\n]+|,\s*and\b|\band\b)\s*/)
+    .filter(Boolean);
   const changes = [];
   for (const clause of clauses) {
-    let match = /^(?:this )?(monday|tuesday|wednesday|thursday|friday|saturday|sunday)(?:['’]s practice| practice)? (?:was|felt) (light|moderate|hard|rough|easy)$/.exec(clause);
+    let match =
+      /^(?:this )?(monday|tuesday|wednesday|thursday|friday|saturday|sunday)(?:['’]s practice| practice)? (?:was|felt) (light|moderate|hard|rough|easy)$/.exec(
+        clause
+      );
     if (match) {
       const target = addDays(start, practiceDays[match[1]]);
       if (!clause.startsWith('this ') && dateKey(target) > dateKey(today)) {
-        return { question: `Do you mean ${dateKey(target)} in the displayed week, or an earlier ${match[1]}? To choose the displayed week, say “This ${match[1]} was ${match[2]}.”`, changes: [] };
+        return {
+          question: `Do you mean ${dateKey(target)} in the displayed week, or an earlier ${match[1]}? To choose the displayed week, say “This ${match[1]} was ${match[2]}.”`,
+          changes: []
+        };
       }
       const effort = { rough: 'hard', easy: 'light' }[match[2]] || match[2];
-      changes.push({ operation: 'log_practice', date: dateKey(addDays(start, practiceDays[match[1]])), value: effort });
+      changes.push({
+        operation: 'log_practice',
+        date: dateKey(addDays(start, practiceDays[match[1]])),
+        value: effort
+      });
       continue;
     }
-    if (/^(?:i have (?:two |three |\d+ )?(?:midterms?|finals?|exams?)|high coursework|heavy course ?load) this week$/.test(clause)) {
+    if (
+      /^(?:i have (?:two |three |\d+ )?(?:midterms?|finals?|exams?)|high coursework|heavy course ?load) this week$/.test(
+        clause
+      )
+    ) {
       changes.push({ operation: 'set_course_load', date: dateKey(start), value: 'high' });
       continue;
     }
@@ -37,30 +62,50 @@ function interpretLocally(message, start, today = new Date()) {
       changes.push({ operation: 'set_course_load', date: dateKey(start), value: 'normal' });
       continue;
     }
-    match = /^(?:my |the )?tournament(?: date)? (?:is )?(?:on |to )?(\d{4}-\d{2}-\d{2})$/.exec(clause);
+    match = /^(?:my |the )?tournament(?: date)? (?:is )?(?:on |to )?(\d{4}-\d{2}-\d{2})$/.exec(
+      clause
+    );
     if (match && parsePlanDate(match[1])) {
       changes.push({ operation: 'set_tournament_date', date: match[1], value: 'set' });
       continue;
     }
-    match = /^(skip|make) (?:this )?wednesday(?:['’]s)?(?: bike(?: ride)?| ride)( easy)?$/.exec(clause);
+    match = /^(skip|make) (?:this )?wednesday(?:['’]s)?(?: bike(?: ride)?| ride)( easy)?$/.exec(
+      clause
+    );
     if (match && (match[1] === 'make') === Boolean(match[2])) {
-      changes.push({ operation: 'set_bike', date: dateKey(addDays(start, 2)), value: match[1] === 'skip' ? 'skip' : 'easy' });
+      changes.push({
+        operation: 'set_bike',
+        date: dateKey(addDays(start, 2)),
+        value: match[1] === 'skip' ? 'skip' : 'easy'
+      });
       continue;
     }
-    return { question: 'Which practice or solo workout should change? Use the displayed week, for example “Tuesday was hard” or “Skip this Wednesday’s bike.” For a tournament, enter “Tournament is on YYYY-MM-DD.”', changes: [] };
+    return {
+      question:
+        'Which practice or solo workout should change? Use the displayed week, for example “Tuesday was hard” or “Skip this Wednesday’s bike.” For a tournament, enter “Tournament is on YYYY-MM-DD.”',
+      changes: []
+    };
   }
-  return { question: changes.length ? null : 'Enter a note about your practice or schedule.', changes };
+  return {
+    question: changes.length ? null : 'Enter a note about your practice or schedule.',
+    changes
+  };
 }
 
 function proposeSchedule(changes, current) {
-  if (!Array.isArray(changes) || changes.length === 0 || changes.length > 8) throw new Error('No valid schedule changes were returned.');
+  if (!Array.isArray(changes) || changes.length === 0 || changes.length > 8)
+    throw new Error('No valid schedule changes were returned.');
   const next = structuredClone(current);
   const touched = new Set();
   const targets = new Set();
   const notes = [];
   for (const { operation, date, value } of changes) {
     const day = parsePlanDate(date);
-    if (!day || !Object.hasOwn(planOperations, operation) || !planOperations[operation].includes(value)) {
+    if (
+      !day ||
+      !Object.hasOwn(planOperations, operation) ||
+      !planOperations[operation].includes(value)
+    ) {
       throw new Error('The proposed change is outside the supported schedule options.');
     }
     const start = monday(day);
@@ -75,18 +120,25 @@ function proposeSchedule(changes, current) {
       notes.push(`Tournament date → ${longFormatter.format(day)}, ${day.getFullYear()}`);
       continue;
     }
-    const week = next.weeks[key] ??= {};
-    if (operation === 'log_practice' && teamBlocks(next, start).some(block => block.day === index)) {
-      const logs = week.practiceByClub ??= {};
+    const week = (next.weeks[key] ??= {});
+    if (
+      operation === 'log_practice' &&
+      teamBlocks(next, start).some((block) => block.day === index)
+    ) {
+      const logs = (week.practiceByClub ??= {});
       (logs[next.club] ??= next.club === 'berkeley' ? { ...week.practice } : {})[index] = value;
       if (index === 5) touched.add(dateKey(addDays(start, 7)));
       notes.push(`${longFormatter.format(day)} team practice → ${practiceLabels[value]}`);
     } else if (operation === 'set_course_load' && index === 0) {
       week.course = value;
-      notes.push(`Week of ${dateFormatter.format(start)} → ${value === 'high' ? 'High coursework' : 'Regular coursework'}`);
+      notes.push(
+        `Week of ${dateFormatter.format(start)} → ${value === 'high' ? 'High coursework' : 'Regular coursework'}`
+      );
     } else if (operation === 'set_bike' && index === 2) {
       week.bike = value;
-      notes.push(`${longFormatter.format(day)} bike preference → ${value === 'skip' ? 'Skip' : 'Easy'}`);
+      notes.push(
+        `${longFormatter.format(day)} bike preference → ${value === 'skip' ? 'Skip' : 'Easy'}`
+      );
     } else {
       throw new Error('That date does not match the practice or workout you want to update.');
     }
@@ -145,16 +197,22 @@ async function interpretNote(message, start) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
     body: JSON.stringify({
-      message, week_start: dateKey(start), practice_days: [...new Set(teamBlocks(settings, start).map(block => block.day))],
-      club: settings.club, timezone: settings.profile?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone
+      message,
+      week_start: dateKey(start),
+      practice_days: [...new Set(teamBlocks(settings, start).map((block) => block.day))],
+      club: settings.club,
+      timezone: settings.profile?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone
     }),
     signal: AbortSignal.timeout(12000)
   });
-  if (!response.ok) throw new Error('The schedule assistant is unavailable. Try again or use the calendar controls.');
+  if (!response.ok)
+    throw new Error(
+      'The schedule assistant is unavailable. Try again or use the calendar controls.'
+    );
   return response.json();
 }
 
-byId('chat-form').addEventListener('submit', async event => {
+byId('chat-form').addEventListener('submit', async (event) => {
   event.preventDefault();
   pending = null;
   chatApply.hidden = true;
@@ -165,7 +223,11 @@ byId('chat-form').addEventListener('submit', async event => {
   showChatResult('Preparing your preview…');
   try {
     const result = await interpretNote(message, start);
-    if (message !== chatMessage.value.trim() || start !== weekStart || snapshot !== JSON.stringify(settings)) {
+    if (
+      message !== chatMessage.value.trim() ||
+      start !== weekStart ||
+      snapshot !== JSON.stringify(settings)
+    ) {
       showChatResult('Your note or calendar changed. Preview again.');
       return;
     }
