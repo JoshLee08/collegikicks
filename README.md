@@ -1,80 +1,64 @@
 # Collegikicks
 
-**[Open the live collegiate planner on GitHub Pages](https://joshlee08.github.io/kyorugi-weekly-planner/)**
+A collegiate Taekwondo planner for sparring and recognized poomsae. Plan solo training around classes, coach-led practices and tournaments.
 
-Choose your Taekwondo club to load its published practices and competitions when available. Berkeley starts with the coach-led schedule supplied for this planner. Override practice times with your coach’s current schedule. Published competitions appear on the weekly calendar. Use Tournaments in the top navigation to add multiple competitions to your schedule and adjust training.
+**[Open Collegikicks](https://joshlee08.github.io/kyorugi-weekly-planner/)**
 
-Import a text-based PDF, ICS calendar, CSV, or TXT file. Select a week for a dated import or use Every week for a recurring class schedule. Review and edit the extracted blocks before applying them. CSV columns are `day,start,end,label`, with labels optional and weekdays or ISO dates accepted. One text row looks like `Wed 14:00–16:00 Chemistry`. Scanned PDFs and layouts with no recognizable rows can be entered manually using the review box.
+## Preview locally
 
-The planner suggests workouts between 8 AM and 9 PM, with 15 minutes around commitments. It can move Monday strength to Tuesday and midweek conditioning to Thursday or Friday when appropriate. Team practices stay fixed. Files are processed locally. Confirmed time blocks, course load, selected tournaments, and practice logs are saved in the browser.
+From the repository root:
 
-The frontend uses HTML, CSS, and JavaScript, published from the root of `main` on GitHub Pages.
+```sh
+python3 -m http.server 8000
+```
 
-## Refresh school schedules and competitions
+Open [the planner](http://localhost:8000/), [tournaments](http://localhost:8000/tournaments.html), or [your profile](http://localhost:8000/profile.html). There is no frontend build or dependency-install step. Node.js is needed for JavaScript regression checks; Python 3 runs the preview server and Python checks.
 
-The website loads `club-calendar.json` from GitHub Pages when it opens. **Reload club calendar** loads the latest published copy. The browser uses that feed alongside private settings and files stored locally.
+Guest settings stay in this browser. Signing in with Google or an email link enables a private Supabase profile and account plan. Importing a guest plan requires confirmation. The optional FastAPI service powers live tournament discovery, model-assisted schedule notes and configured account deletion.
 
-1. From the repository root, run `python3 tools/refresh_clubs.py`. The Python script fetches the public club pages, parses known layouts, validates dates, and updates the feed. An unavailable or unrecognized page leaves its last valid data in place.
-2. Run `git diff -- club-calendar.json` to see what changed. Visit a changed club and week on the planner to confirm its practice blocks or competitions.
-3. Commit and push the updated feed to `main`. GitHub Pages serves it from the same URL, and the website picks it up on reload.
-4. For unattended refreshes, run the same Python command once daily from a scheduled GitHub Actions job. Start with manual dispatch to verify the diff. Give the job permission to write repository contents and have it publish changes through a pull request or an authenticated push that triggers your Pages build. GitHub does not trigger a branch-based Pages build for commits pushed with the workflow’s default `GITHUB_TOKEN`.
-5. To add another public source, prefer an official ICS or JSON feed. Add a parser that produces weekday practice blocks or explicit competition date ranges and test it against a saved example before enabling it. Use `--fixtures /path/to/saved-pages --output /tmp/club-demo.json` to demonstrate a refresh without changing the live feed.
+## Repository map
 
-The script reads USC, UCSD, UCLA, UC Davis, and UCI practice pages plus the Menlo and UCLA competition pages. UCI’s term bounds and cancellations are respected. Fresno State’s Engage listing is linked for reference. A dated Davis Fall Open listed by Menlo also appears for UC Davis, with Menlo’s schedule attached as the source. A school without a published practice time can use a coach-entered override.
+```text
+.
+├── index.html                   # Planner
+├── tournaments.html             # Tournament discovery and selections
+├── profile.html                 # Account entry and athlete profile
+├── signup.html / login.html     # Supported account entry routes
+├── assets/
+│   ├── css/style.css            # Existing visual design
+│   ├── images/sparring.jpg      # Hero image
+│   └── js/
+│       ├── account/             # Sign-in, profiles and account synchronization
+│       ├── planner/             # Scheduling, state, training, imports and chat
+│       ├── tournaments/         # Tournament browser
+│       └── shared/              # Navigation
+├── config/account-config.js     # Public Supabase settings
+├── backend/                     # Separately hosted FastAPI service
+├── supabase/                    # SQL setup and ownership policies
+├── tests/                       # Regression checks
+├── tools/                       # Feed-maintenance scripts
+├── docs/                        # Architecture, service setup and maintenance
+├── club-calendar.json           # Public school schedule feed (stable URL)
+├── tournament-catalog.json      # Public tournament catalog (stable URL)
+├── render.yaml                  # Existing backend deployment definition
+├── .gitignore                   # Local/generated files to exclude
+└── .nojekyll                    # Keep GitHub Pages static publication buildless
+```
 
-[GitHub Actions schedules](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule) · [GitHub Pages branch publishing](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site)
+## Run checks
 
-## Chatbot setup
+```sh
+node tests/schedule.cjs
+node tests/training.cjs
+python3 -m unittest discover -s tests -p 'test_*.py'
+```
 
-The browser supports a small set of phrases without a server. Notes produce a preview; only **Apply changes** saves it. Unqualified past-tense weekday notes that point to a future practice ask for clarification. Reply with a complete note, such as “This Saturday was hard,” to select the displayed week.
+JavaScript tests resolve source files from their own location and can also be invoked with absolute paths from another working directory. Run Python discovery from the repository root so backend imports resolve normally. These regression tests do not create accounts or verify real OAuth/SMTP credentials.
 
-To enable model interpretation, install `backend/requirements.txt` in a Python virtual environment. Set these environment variables on the API host:
+## Guides
 
-- `OPENAI_API_KEY`: your server-only OpenAI key.
-- `OPENAI_MODEL`: a model supporting Structured Outputs.
-- `KYORUGI_CHAT_TOKEN`: a long random private access token; enter it in the browser's assistant access field. Never commit either secret.
+- [Architecture and data flow](docs/architecture.md): script ordering, state ownership and how the parts fit together.
+- [Service setup and deployment](docs/deployment.md): public settings, server secrets, Supabase, Google, FastAPI and GitHub Pages.
+- [Maintaining calendar data](docs/maintaining-calendar-data.md): refresh school feeds and review public tournament data.
 
-Run from this directory with `uvicorn backend.app:app --host 0.0.0.0 --port 8080 --workers 1`. Set `planApiOrigin` in `chat.js` to the API's HTTPS origin. Publish the static HTML, CSS, JavaScript and image to GitHub Pages; host Python separately. CORS allows `https://joshlee08.github.io` and `http://localhost:8000`.
-
-The API accepts `message`, `week_start` (Monday, YYYY-MM-DD), `practice_days` (Monday is 0), and `timezone` (IANA name). The server computes today's date in that time zone. It returns `question` plus `changes`, with each change containing `operation`, `date`, and `value`. Supported operations are `log_practice`, `set_course_load`, `set_tournament_date`, and the Wednesday-only `set_bike` override. Coach-led practice timing is fixed; a tournament can take precedence on its date.
-
-This private prototype uses a shared access token and a process-local limit of ten authorized requests per minute. Keep one worker; for public or multi-instance hosting, replace these with individual authentication and a shared rate limiter. Settings remain in each browser. The access token is not saved by the planner.
-
-Run scheduling regression checks with `node tests/schedule.cjs`. These cover hard Tuesday, hard Saturday and next Monday, midterms, a Saturday tournament, a date-specific bike skip, ambiguous dates, and invalid proposals leaving settings unchanged. A live model request still needs configured server credentials.
-
-## Tournament discovery and selection
-
-The top navigation links to **Tournaments**, with searchable upcoming listings and a **My tournaments** list. **+ Add** saves planned attendance in the browser, reserves every date of a multi-day event, and adapts training to the next selected competition. Remove selections or jump to their week from the list. Overlapping tournaments are flagged. Existing personal dates remain visible as Personal tournament entries and can be removed. Adding an event does not register or pay the organizer.
-
-The Python API now exposes `GET /tournaments?today=YYYY-MM-DD` (the optional date is the browser's local date). It pulls the official Menlo and UCLA competition calendars through the existing validated parsers, deduplicates events by title and start date, and includes ongoing events. Source requests run concurrently with time and size limits. Responses are cached for 30 minutes; failed sources retain their last successful in-process data or use `club-calendar.json`, with a stale indicator and source-check dates. Only known source URLs are fetched. Restarting the API resets the in-memory cache.
-
-Install `backend/requirements.txt` and run the existing uvicorn command above. Tournament discovery needs no OpenAI credentials. Set `tournamentApiOrigin` at the top of `tournaments.js` to that API's HTTPS origin for GitHub Pages; an empty value uses the current origin. Allow any additional frontend origin explicitly in the backend CORS settings. GitHub Pages cannot execute Python: without a reachable API, the UI clearly labels its fallback to the published JSON snapshot. This change does not deploy the API or automatically refresh that snapshot. Use the existing refresh script to maintain it.
-
-Run `python3 -m unittest discover -s tests -p 'test_*.py'` for discovery fallback, caching, validation and deduplication tests, and `node tests/schedule.cjs` for scheduling tests including multiple tournaments and cross-week events.
-
-## Athlete accounts (local implementation; service setup required)
-
-Guest use remains browser-local. Account pages use Supabase Auth (Google and email links) and a private Postgres account row containing a profile, planner state and revision. Profile preferences are applied to the planner after an explicit current-week preview. The account planner does not store private plans in the guest localStorage key.
-
-### Configure services
-
-1. Create a Supabase project. Run `supabase/schema.sql` in its SQL Editor. The script also migrates profiles from the first prototype. Ownership is derived from `auth.uid()`, not a supplied user ID. Only owners can read their row; writes go through a revision-checked RPC.
-2. In `account-config.js`, set `url` to the project URL, `publishableKey` to the public publishable key, and `apiOrigin` to the separately hosted FastAPI HTTPS origin. This file is public. Never put service-role keys or Google client secrets in it.
-3. Enable the email provider. Configure the Site URL as `https://joshlee08.github.io/kyorugi-weekly-planner/`. Allow the exact redirect `https://joshlee08.github.io/kyorugi-weekly-planner/profile.html` and development redirect `http://localhost:8000/profile.html`. Configure custom SMTP for public email delivery.
-4. Enable Google in Supabase. Create a Google web OAuth client, configure the Supabase callback shown in the provider settings as its authorized redirect URI, and enter the client ID and secret in Supabase. The website callback above is a separate post-authentication redirect.
-5. On the backend host, configure `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` for account deletion. The backend verifies the caller with Supabase before deleting that identity. Foreign keys cascade deletion to private account records. Existing assistant credentials remain separate; creating an account does not enable assistant access.
-6. Serve the repository with `python3 -m http.server 8000`. Open `http://localhost:8000/signup.html`. Use a development Supabase project for testing. GitHub Pages serves only frontend files; Python still needs its own host. Keep frontend and API CORS origins aligned.
-
-Official setup references: [email links](https://supabase.com/docs/guides/auth/auth-email-passwordless), [Google](https://supabase.com/docs/guides/auth/social-sign-in/auth-google), [redirects](https://supabase.com/docs/guides/auth/redirect-urls), [SMTP](https://supabase.com/docs/guides/auth/auth-smtp).
-
-### Behavior and verification
-
-- First-time onboarding has three steps. Optional details may be omitted. Drafts are scoped to the signed-in user in sessionStorage and removed after saving/sign-out. Profiles support custom schools without Berkeley fallback, rank labels, experience, discipline, goals and solo availability.
-- Profile saves show the current week's before/after session titles. Existing logs and commitments are retained. Preview uses the published club calendar snapshot when reachable.
-- Account planner saves are serialized and revision checked. A failed write retains edits in the current tab. Reload or explicit remote replacement resolves a conflict. Close the tab only after a successful save, or export data first.
-- Guest import requires a summary and explicit replacement confirmation. The guest copy remains unchanged. Export includes the profile and planner but no authentication information.
-- Recognized poomsae uses conservative technique/balance templates. Mixed training alternates deterministically by calendar week and configured session count; unavailable sessions are omitted rather than carried forward. Goal selection never increases the session cap. Rank and experience never increase intensity.
-- Run `node tests/schedule.cjs`, `node tests/training.cjs`, and `python3 -m unittest discover -s tests -p 'test_*.py'`.
-- Before production, verify real Google and email-link flows (including expired/canceled links), two-device profile/planner saves and conflicts, and account deletion. Verify with two test accounts that neither can read the other's row or choose the other's ID in a write. A mock browser check cannot verify live provider setup or database policies.
-
-The connected Supabase project now has the private `athlete_accounts` table, save RPC, and production/local callback URLs configured. Google and email providers are enabled. Live end-to-end sign-in and ownership tests remain required; the public provider/redirect checks alone do not verify an entire login. Custom SMTP and backend account-deletion secrets still require service configuration.
+Keep public HTML/feed URLs and authentication callbacks stable. Frontend source assets are grouped by responsibility; future changes should follow the same folders.
