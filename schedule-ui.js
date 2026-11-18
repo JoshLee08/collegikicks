@@ -214,7 +214,7 @@ async function loadClubCalendar() {
   try {
     const response = await fetch('club-calendar.json', { cache: 'no-cache' }).catch(() => null);
     const feed = response?.ok ? response : await fetch(
-      'https://raw.githubusercontent.com/JoshLee08/kyorugi-weekly-planner/main/club-calendar.json',
+      'https://raw.githubusercontent.com/JoshLee08/collegikicks/main/club-calendar.json',
       { cache: 'no-cache' }
     );
     if (!feed.ok) throw new Error('Calendar feed unavailable');

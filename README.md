@@ -1,6 +1,6 @@
 # Collegikicks
 
-**[Level up your Taekwondo today](https://joshlee08.github.io/kyorugi-weekly-planner/)**
+**[Level up your Taekwondo today](https://joshlee08.github.io/collegikicks/)**
 
 Choose your Taekwondo club to load its published practices and competitions when available. Berkeley starts with the coach-led schedule supplied for this planner. Override practice times with your coach’s current schedule. Published competitions appear on the weekly calendar. Use Tournaments in the top navigation to add multiple competitions to your schedule and adjust training.
 
