@@ -164,15 +164,13 @@ button:disabled {
   letter-spacing: 0.09em;
 }
 .mark {
-  display: grid;
-  place-items: center;
-  width: 30px;
-  height: 28px;
-  padding-right: 3px;
-  border-radius: 4px;
+  display: inline-block;
+  width: 34px;
+  height: 38px;
+  flex-shrink: 0;
   background: var(--gold);
-  color: var(--navy);
-  letter-spacing: -0.13em;
+  -webkit-mask: url('../images/collegikicks-mark.png') center / auto 125% no-repeat;
+  mask: url('../images/collegikicks-mark.png') center / auto 125% no-repeat;
 }
 .top nav {
   display: flex;
