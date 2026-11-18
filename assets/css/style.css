@@ -211,20 +211,38 @@ button:disabled {
   color: #ffffff;
   background: #171614;
 }
+.hero {
+  isolation: isolate;
+}
+.hero-photo {
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 72%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 65% 42%;
+  z-index: -2;
+}
 .hero::before {
   content: '';
   position: absolute;
-  inset: 0 0 0 28%;
-  background:
-    linear-gradient(90deg, #171614 1%, rgba(23, 22, 20, 0.5) 31%, transparent 58%),
-    url('../images/sparring.jpg') center 44% / cover no-repeat;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    90deg,
+    #171614 26%,
+    rgba(23, 22, 20, 0.95) 40%,
+    rgba(23, 22, 20, 0.15) 65%,
+    transparent 80%
+  );
 }
 .hero-copy {
+  width: 64%;
   position: relative;
   padding: 34px 43px;
 }
 .hero h1 {
-  font: 700 clamp(40px, 5.4vw, 72px) / 0.98 var(--display);
+  font: 700 clamp(36px, 3.5vw, 48px) / 0.98 var(--display);
   text-transform: uppercase;
   letter-spacing: -0.015em;
   margin: 15px 0 17px;
@@ -1484,4 +1502,64 @@ dialog button {
 }
 .profile-link svg {
   display: block;
+}
+
+/* Saved tournaments scroll independently without growing past the result panel. */
+.tournament-layout .tournament-sidebar {
+  position: sticky;
+  top: calc(var(--navigation-height, 62px) + 16px);
+  max-height: min(
+    calc(100dvh - var(--navigation-height, 62px) - 32px),
+    var(--results-height, 100dvh)
+  );
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  scrollbar-gutter: stable;
+}
+.tournament-card--saved .tournament-links {
+  margin-top: 6px;
+}
+.tournament-added {
+  font-size: 12px;
+  font-weight: 700;
+}
+.account form.profile-sections {
+  border: 0;
+  padding: 0;
+}
+.account .auth-divider {
+  color: var(--muted);
+  font-size: 13px;
+}
+@media (max-width: 720px) {
+  .tournament-layout .tournament-sidebar {
+    position: static;
+    max-height: min(70dvh, 640px);
+  }
+}
+@media (max-width: 720px) {
+  .hero {
+    min-height: 500px;
+    align-items: flex-start;
+  }
+  .hero-copy {
+    width: 100%;
+    padding: 24px 20px;
+  }
+  .hero h1 {
+    font-size: clamp(32px, 8vw, 46px);
+  }
+  .hero-copy > p:last-child {
+    max-width: 95%;
+  }
+  .hero-photo {
+    inset: auto 0 0;
+    width: 100%;
+    height: 57%;
+    object-position: 75% center;
+  }
+  .hero::before {
+    inset: 0;
+    background: linear-gradient(180deg, #171614 32%, rgba(23, 22, 20, 0.9) 41%, transparent 60%);
+  }
 }

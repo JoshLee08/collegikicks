@@ -31,7 +31,7 @@
     document.querySelector('.account > h1 + p').textContent =
       'Create an account or sign in to save your profile and training plan.';
     root.innerHTML =
-      '<button id="google">Continue with Google</button><form id="email-form"><label for="email">Email address</label><input id="email" type="email" autocomplete="email" required><button>Send sign-in link</button></form><p>Open the link on the device where you want to sign in. Already have an account? The same link signs you in.</p>';
+      '<form id="email-form"><button type="button" id="google">Continue with Google</button><p class="auth-divider">or continue with email</p><label for="email">Email address</label><input id="email" type="email" autocomplete="email" required><button type="submit" id="email-submit">Send sign-in link</button></form><p>Open the link on the device where you want to sign in. Already have an account? The same link signs you in.</p>';
     document.getElementById('google').onclick = async () => {
       const { error } = await client.auth.signInWithOAuth({
         provider: 'google',
@@ -41,7 +41,7 @@
     };
     document.getElementById('email-form').onsubmit = async (event) => {
       event.preventDefault();
-      const button = event.target.querySelector('button');
+      const button = event.target.querySelector('[type=submit]');
       button.disabled = true;
       say('Sending…');
       try {
@@ -103,9 +103,7 @@
       'select',
       ['Not specified', 'White', 'Yellow', 'Green', 'Blue', 'Red', 'Black', 'Other']
     ],
-    ['rankLabel', 'Stripe or custom rank', 'text'],
-    ['dan', 'Dan (black belts, optional)', 'number'],
-    ['years', 'Years training (optional)', 'number'],
+    ['dan', 'Dan rank', 'select', ['', '1', '2', '3', '4', '5', '6', '7', '8', '9']],
     [
       'experience',
       'Tournament experience',
@@ -133,7 +131,7 @@
     ['timezone', 'Timezone', 'text']
   ];
   root.innerHTML =
-    '<form id="profile-form"><h2>Athlete details</h2><p>Your profile is private. Rank systems vary by school. Solo sessions are additional to team practice.</p><div id="fields"></div><button>Save profile</button><button type="button" id="cancel">Cancel</button></form><section><h2>Account</h2><p id="identity"></p><button id="export">Export profile</button><button id="signout">Sign out</button></section>';
+    '<form id="profile-form"><h2>Athlete details</h2><p>Your profile is private. Rank systems vary by school. Solo sessions are additional to team practice.</p><div id="fields"></div><button type="submit" id="save-profile">Save profile</button><button type="button" id="cancel">Cancel</button></form><section><h2>Account</h2><p id="identity"></p><button id="export">Export profile</button><button id="signout">Sign out</button></section>';
   document.getElementById('identity').textContent = user.email;
   const container = document.getElementById('fields');
   for (const [key, label, type, options] of fields) {
@@ -148,7 +146,12 @@
       for (const value of options) {
         const o = document.createElement('option');
         o.value = value;
-        o.textContent = value;
+        o.textContent =
+          key === 'dan'
+            ? value
+              ? `${value}${value === '1' ? 'st' : value === '2' ? 'nd' : value === '3' ? 'rd' : 'th'} Dan`
+              : 'Not specified'
+            : value;
         input.append(o);
       }
     else input.type = type;
@@ -191,6 +194,7 @@
     if (key === 'displayName') input.required = true;
     container.append(input);
   }
+  let activeStepKeys = null;
   function restore() {
     for (const [key, typeLabel, type] of fields) {
       if (type === 'goals' || type === 'days') {
@@ -220,8 +224,9 @@
       ['priority', document.getElementById('discipline').value === 'Both'],
       ['forms', document.getElementById('discipline').value !== 'Sparring']
     ]) {
-      document.getElementById(key).hidden = !visible;
-      document.querySelector(`label[for=${key}]`).hidden = !visible;
+      document.getElementById(key).hidden =
+        !visible || !!(activeStepKeys && !activeStepKeys.includes(key));
+      document.querySelector(`label[for=${key}]`).hidden = document.getElementById(key).hidden;
     }
   }
   let dirty = false;
@@ -255,7 +260,8 @@
   document.getElementById('profile-form').onsubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
-    const profile = Object.fromEntries(formData);
+    const profile = { ...saved, ...Object.fromEntries(formData) };
+    if (profile.belt !== 'Black') profile.dan = '';
     profile.goals = formData.getAll('goals');
     profile.days = formData.getAll('days');
     if (profile.goals.length > 3) {
@@ -274,8 +280,10 @@
       return;
     }
     say('Saving…');
-    const button = e.target.querySelector('button');
-    button.disabled = true;
+    const buttons = [...e.target.querySelectorAll('button[type=submit]')];
+    buttons.forEach((button) => {
+      button.disabled = true;
+    });
     try {
       profile.onboardingComplete = true;
       if (!(await preview(profile))) return;
@@ -293,7 +301,9 @@
           ' Your edits are still here; retry or reload to fetch the latest version.'
       );
     } finally {
-      button.disabled = false;
+      buttons.forEach((button) => {
+        button.disabled = false;
+      });
     }
   };
   document.getElementById('signout').onclick = async () => {
@@ -390,9 +400,10 @@
   link.innerHTML = '<a href="./">Edit practice times and class schedule →</a>';
   root.append(link);
   if (saved.onboardingComplete) {
+    document.getElementById('profile-form').classList.add('profile-sections');
     const groups = [
       ['School and club', ['displayName', 'school', 'customSchool']],
-      ['Rank and experience', ['belt', 'rankLabel', 'dan', 'years', 'experience', 'level']],
+      ['Rank and experience', ['belt', 'dan', 'experience', 'level']],
       ['Discipline and goals', ['discipline', 'priority', 'forms', 'goals']],
       ['Availability', ['sessions', 'duration', 'days', 'timezone']]
     ];
@@ -408,7 +419,7 @@
       }
       const save = document.createElement('button');
       save.type = 'submit';
-      save.textContent = 'Save ' + title.toLowerCase();
+      save.textContent = 'Save';
       section.append(save);
       const cancel = document.createElement('button');
       cancel.type = 'button';
@@ -420,17 +431,6 @@
       section.append(cancel);
       container.append(section);
     }
-    const searchLabel = document.createElement('label');
-    searchLabel.textContent = 'Find your school';
-    const search = document.createElement('input');
-    search.type = 'search';
-    search.setAttribute('aria-label', 'Find your school');
-    searchLabel.append(search);
-    document.getElementById('school').before(searchLabel);
-    search.oninput = () => {
-      for (const option of document.getElementById('school').options)
-        option.hidden = !option.textContent.toLowerCase().includes(search.value.toLowerCase());
-    };
   }
   const guest = localStorage.getItem('kyorugi-planner-v1');
   if (guest) {
@@ -497,10 +497,7 @@
   if (!saved.onboardingComplete) {
     const steps = [
       ['Your school', ['displayName', 'school', 'customSchool', 'timezone']],
-      [
-        'Your Taekwondo background',
-        ['belt', 'rankLabel', 'dan', 'years', 'experience', 'level', 'discipline', 'forms']
-      ],
+      ['Your Taekwondo background', ['belt', 'dan', 'experience', 'level', 'discipline', 'forms']],
       ['Your training preferences', ['priority', 'goals', 'days', 'sessions', 'duration']]
     ];
     let step = 0;
@@ -515,6 +512,7 @@
     const submit = document.querySelector('#profile-form button');
     submit.before(back, next);
     function show() {
+      activeStepKeys = steps[step][1];
       conditional();
       progress.textContent = `Step ${step + 1} of 3: ${steps[step][0]}`;
       for (const [key] of fields) {
@@ -528,7 +526,7 @@
       back.hidden = step === 0;
       next.hidden = step === 2;
       submit.hidden = step !== 2;
-      submit.textContent = 'Save profile & view my plan';
+      submit.textContent = 'Save profile';
     }
     function resetVisibility() {
       for (const [key] of fields) {

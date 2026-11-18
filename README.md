@@ -26,7 +26,7 @@ Guest settings stay in this browser. Signing in with Google or an email link ena
 ├── signup.html / login.html     # Supported account entry routes
 ├── assets/
 │   ├── css/style.css            # Existing visual design
-│   ├── images/sparring.jpg      # Hero image
+│   ├── images/                  # Hero and brand artwork
 │   └── js/
 │       ├── account/             # Sign-in, profiles and account synchronization
 │       ├── planner/             # Scheduling, state, training, imports and chat
@@ -54,6 +54,8 @@ python3 -m unittest discover -s tests -p 'test_*.py'
 ```
 
 JavaScript tests resolve source files from their own location and can also be invoked with absolute paths from another working directory. Run Python discovery from the repository root so backend imports resolve normally. These regression tests do not create accounts or verify real OAuth/SMTP credentials.
+
+For optional UI regression checks, make Playwright and a Chromium browser available, start the local preview server, and run `node tests/ui.cjs`. Set `PREVIEW_URL` for another local URL or `CHROME_PATH` for an installed Chrome executable. These checks mock account services and email requests; they never modify real accounts.
 
 ## Guides
 

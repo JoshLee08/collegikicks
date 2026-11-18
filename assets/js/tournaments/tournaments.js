@@ -156,7 +156,15 @@ function eventCard(event, selected, savedList = false) {
   title.textContent = event.title;
   const location = document.createElement('p');
   location.textContent = event.location || 'Location to be confirmed';
-  info.append(date, title, location);
+  info.append(date, title);
+  if (!savedList) info.append(location);
+  else {
+    card.classList.add('tournament-card--saved');
+    const added = document.createElement('p');
+    added.className = 'tournament-added';
+    added.textContent = 'Added to plan';
+    info.append(added);
+  }
 
   const miles = tournamentMiles(event);
   const tags = [
@@ -164,7 +172,7 @@ function eventCard(event, selected, savedList = false) {
     event.tentative && 'Tentative date',
     Number.isFinite(miles) && `About ${Math.round(miles)} mi away`
   ].filter(Boolean);
-  if (tags.length) {
+  if (tags.length && !savedList) {
     const metadata = document.createElement('p');
     metadata.className = 'tournament-meta';
     metadata.textContent = tags.join(' · ');
@@ -182,34 +190,12 @@ function eventCard(event, selected, savedList = false) {
     info.append(conflict);
   }
 
-  if (selected) {
-    const label = document.createElement('label');
-    label.textContent = 'Your participation (not organizer confirmation)';
-    const select = document.createElement('select');
-    select.setAttribute('aria-label', 'Your participation in ' + event.title);
-    const saved = (settings.tournaments || []).find((item) => item.id === event.id);
-    for (const value of ['Unspecified', 'Sparring', 'Poomsae', 'Both']) {
-      const option = document.createElement('option');
-      option.value = value;
-      option.textContent = value;
-      select.append(option);
-    }
-    select.value = saved?.participation || 'Unspecified';
-    select.onchange = () => {
-      if (saved) {
-        saved.participation = select.value;
-        saveSettings();
-      }
-    };
-    label.append(select);
-    info.append(label);
-  }
   const actions = document.createElement('div');
   actions.className = 'tournament-links';
   const button = document.createElement('button');
   button.type = 'button';
   button.classList.toggle('primary', !selected);
-  button.textContent = selected ? 'Remove from plan' : 'Add to plan';
+  button.textContent = selected ? (savedList ? 'Remove' : 'Remove from plan') : 'Add to plan';
   button.setAttribute(
     'aria-label',
     `${selected ? 'Remove' : 'Add'} ${event.title} ${selected ? 'from' : 'to'} my plan`
@@ -243,14 +229,14 @@ function eventCard(event, selected, savedList = false) {
       `${event.title} ${selected ? 'removed from' : 'added to'} your schedule.`;
   });
   actions.append(button);
-  if (selected) {
+  if (selected && !savedList) {
     const view = document.createElement('a');
     view.href = `./?week=${encodeURIComponent(event.start)}#week-title`;
     view.textContent = 'View week →';
     view.setAttribute('aria-label', `View week for ${event.title}`);
     actions.append(view);
   }
-  if (/^https:\/\//i.test(event.source || '')) {
+  if (!savedList && /^https:\/\//i.test(event.source || '')) {
     const link = document.createElement('a');
     link.href = event.source;
     link.target = '_blank';
@@ -259,7 +245,7 @@ function eventCard(event, selected, savedList = false) {
     actions.append(link);
   }
   card.append(actions);
-  if (event.checked) {
+  if (event.checked && !savedList) {
     const checked = document.createElement('small');
     checked.textContent = `Source checked ${event.checked}`;
     card.append(checked);
@@ -461,3 +447,15 @@ window.addEventListener('pageshow', (event) => {
 });
 renderTournaments();
 loadTournaments();
+
+// Keep the left panel within the results boundary; wheel events stay in this panel.
+const tournamentSidebar = document.querySelector('.tournament-sidebar');
+const tournamentDiscovery = document.querySelector('.tournament-discovery');
+function sizeTournamentSidebar() {
+  tournamentSidebar.style.setProperty(
+    '--results-height',
+    `${tournamentDiscovery.getBoundingClientRect().height}px`
+  );
+}
+new ResizeObserver(sizeTournamentSidebar).observe(tournamentDiscovery);
+sizeTournamentSidebar();
