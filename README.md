@@ -2,7 +2,7 @@
 
 A collegiate Taekwondo planner for sparring and recognized poomsae. Plan solo training around classes, coach-led practices and tournaments.
 
-**[Open Collegikicks](https://joshlee08.github.io/kyorugi-weekly-planner/)**
+**[Level up your Taekwondo today](https://joshlee08.github.io/collegikicks/)**
 
 ## Preview locally
 

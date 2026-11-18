@@ -65,7 +65,7 @@ Guest use remains browser-local. Account pages use Supabase Auth (Google and ema
 
 1. Create a Supabase project. Run `supabase/schema.sql` in its SQL Editor. The script also migrates profiles from the first prototype. Ownership is derived from `auth.uid()`, not a supplied user ID. Only owners can read their row; writes go through a revision-checked RPC.
 2. In `config/account-config.js`, set `url` to the project URL, `publishableKey` to the public publishable key, and `apiOrigin` to the separately hosted FastAPI HTTPS origin. This file is public. Never put service-role keys or Google client secrets in it.
-3. Enable the email provider. Configure the Site URL as `https://joshlee08.github.io/kyorugi-weekly-planner/`. Allow the exact redirect `https://joshlee08.github.io/kyorugi-weekly-planner/profile.html` and development redirect `http://localhost:8000/profile.html`. Configure custom SMTP for public email delivery.
+3. Enable the email provider. Configure the Site URL as `https://joshlee08.github.io/collegikicks/`. Allow the exact redirect `https://joshlee08.github.io/collegikicks/profile.html` and development redirect `http://localhost:8000/profile.html`. Configure custom SMTP for public email delivery.
 4. Enable Google in Supabase. Create a Google web OAuth client, configure the Supabase callback shown in the provider settings as its authorized redirect URI, and enter the client ID and secret in Supabase. The website callback above is a separate post-authentication redirect.
 5. On the backend host, configure `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` for account deletion. The backend verifies the caller with Supabase before deleting that identity. Foreign keys cascade deletion to private account records. Existing assistant credentials remain separate; creating an account does not enable assistant access.
 6. Serve the repository with `python3 -m http.server 8000`. Open `http://localhost:8000/signup.html`. Use a development Supabase project for testing. GitHub Pages serves only frontend files; Python still needs its own host. Keep frontend and API CORS origins aligned.
@@ -79,6 +79,6 @@ The connected Supabase project now has the private `athlete_accounts` table, sav
 ## Publish a reviewed change
 
 1. Run the README checks and preview all five pages locally.
-2. Test asset URLs under the `/kyorugi-weekly-planner/` repository subpath. Bump asset query versions when changing content at an existing URL so browsers do not retain stale scripts.
+2. Test asset URLs under the `/collegikicks/` repository subpath. Bump asset query versions when changing content at an existing URL so browsers do not retain stale scripts.
 3. Commit and push only when publication is requested. Wait for the GitHub Pages workflow to succeed.
 4. Verify the live planner, tournaments, account page and service settings. Publishing static files does not configure backend secrets, Google or SMTP.
