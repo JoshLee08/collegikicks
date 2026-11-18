@@ -31,7 +31,7 @@
     document.querySelector('.account > h1 + p').textContent =
       'Create an account or sign in to save your profile and training plan.';
     root.innerHTML =
-      '<form id="email-form"><button type="button" id="google">Continue with Google</button><p class="auth-divider">or continue with email</p><label for="email">Email address</label><input id="email" type="email" autocomplete="email" required><button type="submit" id="email-submit">Send sign-in link</button></form><p>Open the link on the device where you want to sign in. Already have an account? The same link signs you in.</p>';
+      '<form id="email-form"><label for="email">Email address</label><input id="email" type="email" autocomplete="email" required><div class="auth-actions"><button type="submit" id="email-submit">Send sign-in link</button><button type="button" id="google">Continue with Google</button></div></form><p>Open the link on the device where you want to sign in. Already have an account? The same link signs you in.</p>';
     document.getElementById('google').onclick = async () => {
       const { error } = await client.auth.signInWithOAuth({
         provider: 'google',

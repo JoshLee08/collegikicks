@@ -1527,9 +1527,14 @@ dialog button {
   border: 0;
   padding: 0;
 }
-.account .auth-divider {
-  color: var(--muted);
-  font-size: 13px;
+.account .auth-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+}
+.account .auth-actions button {
+  margin: 0;
 }
 @media (max-width: 720px) {
   .tournament-layout .tournament-sidebar {
